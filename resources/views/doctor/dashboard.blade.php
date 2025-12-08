@@ -156,4 +156,64 @@ Welcome, Dr. {{ auth()->user()->name }}
         </div>
     </div>
 </div>
+
+<!-- Recent Patients -->
+<div class="mt-8 animate-slide-up" style="animation-delay: 0.3s">
+    <div class="bg-white rounded-xl shadow">
+        <div class="p-6 border-b">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-800">Recent Patients</h2>
+                <a href="{{ route('doctor.document-history') }}" class="text-ddu-primary hover:underline font-medium">View All</a>
+            </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-ddu-light">
+                    <tr>
+                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">Patient Name</th>
+                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">Visit Time</th>
+                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">Condition</th>
+                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">Status</th>
+                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($recentPatients as $appointment)
+                    <tr class="border-b hover:bg-gray-50 transition">
+                        <td class="py-4 px-6">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                    <i class="fas fa-user text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">{{ $appointment->patient->full_name }}</div>
+                                    <div class="text-gray-600 text-sm">
+                                        {{ $appointment->patient->card_number }}
+                                        @if($appointment->patient->date_of_birth)
+                                            • {{ \Carbon\Carbon::parse($appointment->patient->date_of_birth)->age }} years
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">{{ \Carbon\Carbon::parse($appointment->appointment_time)->format('h:i A') }}</td>
+                        <td class="py-4 px-6">{{ $appointment->reason ?? 'General Consultation' }}</td>
+                        <td class="py-4 px-6">
+                            <span class="bg-green-100 text-green-800 py-1 px-3 rounded-full text-sm font-medium">{{ ucfirst($appointment->status) }}</span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <a href="{{ route('doctor.document-history') }}" class="text-ddu-primary hover:underline font-medium">View History</a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" class="py-8 text-center text-gray-500">No recent patients</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 @endsection
