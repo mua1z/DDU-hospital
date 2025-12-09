@@ -70,7 +70,7 @@ class DoctorController extends Controller
         $doctorId = auth()->id();
         $today = now()->toDateString();
         $tomorrow = \Carbon\Carbon::tomorrow()->toDateString();
-        
+
         // Today's appointments formatted
         $appointments = Appointment::with(['patient'])
             ->where('doctor_id', $doctorId)
@@ -159,7 +159,7 @@ class DoctorController extends Controller
     public function viewLabResults()
     {
         $doctorId = auth()->id();
-        
+
         $labResults = LabResult::with(['patient', 'labRequest'])
             ->whereHas('labRequest', function ($query) use ($doctorId) {
                 $query->where('requested_by', $doctorId);
@@ -334,7 +334,7 @@ class DoctorController extends Controller
                 ];
             })
             ->toArray();
-        
+
         return view('doctor.document-history', compact('patients', 'visitHistory'));
     }
 
