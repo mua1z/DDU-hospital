@@ -119,9 +119,18 @@ class DoctorController extends Controller
         $appointments = Appointment::with('patient')
             ->where('doctor_id', auth()->id())
             ->whereDate('appointment_date', now()->toDateString())
+            ->whereIn('status', ['scheduled', 'in_progress'])
+            ->orderBy('appointment_time')
             ->get();
 
-        return view('doctor.request-lab-test', compact('patients', 'appointments'));
+        $recentRequests = LabRequest::with(['patient', 'appointment'])
+            ->where('requested_by', auth()->id())
+            ->orderBy('requested_date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        return view('doctor.request-lab-test', compact('patients', 'appointments', 'recentRequests'));
     }
 
     public function storeLabRequest(Request $request)
@@ -217,11 +226,116 @@ class DoctorController extends Controller
             ->with('success', 'Prescription created successfully.');
     }
 
+    public function consultAppointment(Request $request, Appointment $appointment)
+    {
+        // Ensure the logged in doctor owns this appointment
+        if ($appointment->doctor_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $validated = $request->validate([
+            'consultation_notes' => 'nullable|string',
+            'prescription' => 'nullable|array',
+            'prescription.diagnosis' => 'nullable|string',
+            'prescription.notes' => 'nullable|string',
+            'prescription.medications' => 'nullable|array',
+            'prescription.medications.*.medication_id' => 'required_with:prescription.medications|exists:medications,id',
+            'prescription.medications.*.dosage' => 'required_with:prescription.medications|string',
+            'prescription.medications.*.frequency' => 'required_with:prescription.medications|string',
+            'prescription.medications.*.quantity' => 'required_with:prescription.medications|integer|min:1',
+            'prescription.medications.*.duration_days' => 'nullable|integer',
+            'prescription.medications.*.instructions' => 'nullable|string',
+            'lab_request' => 'nullable|array',
+            'lab_request.test_type' => 'required_with:lab_request|string|max:255',
+            'lab_request.test_description' => 'nullable|string',
+            'lab_request.clinical_notes' => 'nullable|string',
+            'lab_request.priority' => 'nullable|in:normal,urgent,stat',
+            'lab_request.due_date' => 'nullable|date',
+        ]);
+
+        // Update appointment notes and status
+        $notesAppend = $validated['consultation_notes'] ?? null;
+        if ($notesAppend) {
+            $appointment->notes = ($appointment->notes ? $appointment->notes . "\n\n" : '') . $notesAppend;
+        }
+        $appointment->status = 'completed';
+        $appointment->save();
+
+        // Optionally create a prescription tied to this appointment
+        if (!empty($validated['prescription']['medications'])) {
+            $pres = $validated['prescription'];
+            $prescription = Prescription::create([
+                'prescription_number' => 'RX' . strtoupper(Str::random(8)),
+                'patient_id' => $appointment->patient_id,
+                'appointment_id' => $appointment->id,
+                'prescribed_by' => auth()->id(),
+                'diagnosis' => $pres['diagnosis'] ?? null,
+                'notes' => $pres['notes'] ?? null,
+                'status' => 'pending',
+                'prescription_date' => now()->toDateString(),
+            ]);
+
+            foreach ($pres['medications'] as $med) {
+                PrescriptionItem::create([
+                    'prescription_id' => $prescription->id,
+                    'medication_id' => $med['medication_id'],
+                    'dosage' => $med['dosage'],
+                    'frequency' => $med['frequency'],
+                    'quantity' => $med['quantity'],
+                    'duration_days' => $med['duration_days'] ?? null,
+                    'instructions' => $med['instructions'] ?? null,
+                    'status' => 'pending',
+                ]);
+            }
+        }
+
+        // Optionally create a lab request tied to this appointment
+        if (!empty($validated['lab_request']['test_type'])) {
+            $lab = $validated['lab_request'];
+            LabRequest::create([
+                'request_number' => 'REQ' . strtoupper(Str::random(8)),
+                'patient_id' => $appointment->patient_id,
+                'appointment_id' => $appointment->id,
+                'test_type' => $lab['test_type'],
+                'test_description' => $lab['test_description'] ?? null,
+                'clinical_notes' => $lab['clinical_notes'] ?? null,
+                'priority' => $lab['priority'] ?? 'normal',
+                'due_date' => $lab['due_date'] ?? null,
+                'requested_by' => auth()->id(),
+                'requested_date' => now()->toDateString(),
+                'status' => 'pending',
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Consultation recorded successfully.');
+    }
+
     public function documentHistory()
     {
         $patients = Patient::orderBy('full_name')->get();
+
+        // Recent visit history placeholder; in production, source from real encounters/appointments
+        $visitHistory = Appointment::with('patient', 'doctor')
+            ->where('doctor_id', auth()->id())
+            ->orderBy('appointment_date', 'desc')
+            ->orderBy('appointment_time', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function ($appointment) {
+                return [
+                    'date' => ($appointment->appointment_date ? $appointment->appointment_date->format('M d, Y') : $appointment->created_at->format('M d, Y'))
+                        . ', ' . \Carbon\Carbon::parse($appointment->appointment_time ?? $appointment->created_at)->format('h:i A'),
+                    'diagnosis' => $appointment->reason ?? 'Consultation',
+                    'doctor' => $appointment->doctor->name ?? 'Doctor',
+                    'status' => ucfirst(str_replace('_', ' ', $appointment->status ?? 'scheduled')),
+                    'statusColor' => $appointment->status === 'in_progress' ? 'text-green-600' : 'text-blue-600',
+                    'borderColor' => $appointment->status === 'in_progress' ? 'border-green-500' : 'border-blue-500',
+                    'treatments' => [], // populate when treatments are available
+                ];
+            })
+            ->toArray();
         
-        return view('doctor.document-history', compact('patients'));
+        return view('doctor.document-history', compact('patients', 'visitHistory'));
     }
 
     private function getStatusClass($status)

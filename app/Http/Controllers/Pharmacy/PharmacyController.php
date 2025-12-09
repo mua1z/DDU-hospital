@@ -51,7 +51,14 @@ class PharmacyController extends Controller
             ->orderBy('prescription_date', 'desc')
             ->paginate(20);
 
-        return view('pharmacy.view-prescriptions', compact('prescriptions'));
+        $counts = [
+            'total' => Prescription::count(),
+            'pending' => Prescription::where('status', 'pending')->count(),
+            'dispensed' => Prescription::where('status', 'dispensed')->count(),
+            'cancelled' => Prescription::where('status', 'cancelled')->count(),
+        ];
+
+        return view('pharmacy.view-prescriptions', compact('prescriptions', 'counts'));
     }
 
     public function dispenseMedications()

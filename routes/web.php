@@ -56,6 +56,7 @@ Route::middleware(['auth'])->prefix('doctor')->name('doctor.')->group(function (
     Route::get('/write-prescription', [DoctorController::class, 'writePrescription'])->name('write-prescription');
     Route::post('/write-prescription', [DoctorController::class, 'storePrescription'])->name('store-prescription');
     Route::get('/document-history', [DoctorController::class, 'documentHistory'])->name('document-history');
+    Route::post('/appointments/{appointment}/consult', [DoctorController::class, 'consultAppointment'])->name('appointments.consult');
 });
 
 // Lab Routes

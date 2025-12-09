@@ -65,15 +65,26 @@ class LabController extends Controller
         return redirect()->back()->with('success', 'Request status updated.');
     }
 
-    public function uploadResults()
+    public function uploadResults(Request $request)
     {
-        $requests = LabRequest::with(['patient'])
-            ->where('status', 'in_progress')
-            ->orWhere('status', 'completed')
+        $requests = LabRequest::with(['patient', 'requestedBy'])
+            ->whereIn('status', ['pending', 'in_progress', 'completed'])
+            ->orderBy('priority', 'desc')
             ->orderBy('requested_date', 'desc')
             ->get();
 
-        return view('lab.upload-results', compact('requests'));
+        $selectedRequest = null;
+        $selectedId = $request->get('request_id');
+
+        if ($selectedId) {
+            $selectedRequest = $requests->firstWhere('id', (int) $selectedId);
+        }
+
+        if (!$selectedRequest && $requests->isNotEmpty()) {
+            $selectedRequest = $requests->first();
+        }
+
+        return view('lab.upload-results', compact('requests', 'selectedRequest'));
     }
 
     public function storeResults(Request $request)

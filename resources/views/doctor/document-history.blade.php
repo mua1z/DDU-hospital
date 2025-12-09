@@ -248,7 +248,7 @@
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Visit History</h2>
                 
                 <div class="space-y-4">
-                    @foreach($visitHistory as $visit)
+                    @forelse($visitHistory as $visit)
                     <div class="border-l-4 {{ $visit['borderColor'] }} pl-4 py-2">
                         <div class="flex justify-between items-start">
                             <div>
@@ -266,7 +266,9 @@
                             @endforeach
                         </div>
                     </div>
-                    @endforeach
+                    @empty
+                    <div class="text-gray-500 text-sm py-4">No visit history yet.</div>
+                    @endforelse
                     
                     <a href="#" class="block text-center text-ddu-primary hover:underline pt-4 border-t">
                         View Complete History →
@@ -277,44 +279,3 @@
     </div>
 </div>
 @endsection
-
-@php
-$visitHistory = [
-    [
-        'date' => 'Today, 08:30 AM',
-        'diagnosis' => 'Upper Respiratory Infection',
-        'doctor' => 'Dr. Ahmed Ali',
-        'status' => 'Current',
-        'statusColor' => 'text-green-600',
-        'borderColor' => 'border-green-500',
-        'treatments' => ['Amoxicillin', 'Paracetamol']
-    ],
-    [
-        'date' => 'Nov 15, 2024',
-        'diagnosis' => 'Asthma Follow-up',
-        'doctor' => 'Dr. Hana Girma',
-        'status' => 'Resolved',
-        'statusColor' => 'text-blue-600',
-        'borderColor' => 'border-blue-500',
-        'treatments' => ['Inhaler Refill']
-    ],
-    [
-        'date' => 'Aug 22, 2024',
-        'diagnosis' => 'Sports Injury',
-        'doctor' => 'Dr. Ahmed Ali',
-        'status' => 'Resolved',
-        'statusColor' => 'text-blue-600',
-        'borderColor' => 'border-blue-500',
-        'treatments' => ['Pain Relief', 'Physiotherapy']
-    ],
-    [
-        'date' => 'May 10, 2024',
-        'diagnosis' => 'Allergic Reaction',
-        'doctor' => 'Dr. Markos',
-        'status' => 'Resolved',
-        'statusColor' => 'text-blue-600',
-        'borderColor' => 'border-blue-500',
-        'treatments' => ['Antihistamine', 'Cream']
-    ],
-];
-@endphp
