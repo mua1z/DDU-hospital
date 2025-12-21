@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+
 // Reception Routes
 use App\Http\Controllers\Reception\ReceptionController;
 Route::middleware(['auth'])->prefix('reception')->name('reception.')->group(function () {

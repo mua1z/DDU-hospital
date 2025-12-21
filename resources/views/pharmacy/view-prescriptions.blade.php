@@ -8,23 +8,63 @@
 <div class="animate-slade-up">
     <!-- Filters -->
     <div class="bg-white rounded-xl shadow p-6 mb-6">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div class="flex items-center space-x-4">
-                <button class="px-4 py-2 bg-pharma-primary text-white rounded-lg font-medium">All Prescriptions</button>
-                <button class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Pending</button>
-                <button class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Dispensed</button>
-                <button class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancelled</button>
+        <form method="GET" action="{{ route('pharmacy.view-prescriptions') }}" class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex items-center space-x-4 flex-wrap">
+                <a href="{{ route('pharmacy.view-prescriptions', ['status' => 'all']) }}" 
+                   class="px-4 py-2 {{ !request('status') || request('status') === 'all' ? 'bg-pharma-primary text-white' : 'border border-gray-300 text-gray-700 hover:bg-gray-50' }} rounded-lg font-medium transition">
+                    All ({{ $counts['total'] }})
+                </a>
+                <a href="{{ route('pharmacy.view-prescriptions', ['status' => 'pending']) }}" 
+                   class="px-4 py-2 {{ request('status') === 'pending' ? 'bg-yellow-500 text-white' : 'border border-gray-300 text-gray-700 hover:bg-gray-50' }} rounded-lg transition">
+                    Pending ({{ $counts['pending'] }})
+                </a>
+                <a href="{{ route('pharmacy.view-prescriptions', ['status' => 'dispensed']) }}" 
+                   class="px-4 py-2 {{ request('status') === 'dispensed' ? 'bg-blue-500 text-white' : 'border border-gray-300 text-gray-700 hover:bg-gray-50' }} rounded-lg transition">
+                    Dispensed ({{ $counts['dispensed'] }})
+                </a>
+                <a href="{{ route('pharmacy.view-prescriptions', ['status' => 'completed']) }}" 
+                   class="px-4 py-2 {{ request('status') === 'completed' ? 'bg-green-500 text-white' : 'border border-gray-300 text-gray-700 hover:bg-gray-50' }} rounded-lg transition">
+                    Completed ({{ $counts['completed'] }})
+                </a>
+                <a href="{{ route('pharmacy.view-prescriptions', ['status' => 'cancelled']) }}" 
+                   class="px-4 py-2 {{ request('status') === 'cancelled' ? 'bg-red-500 text-white' : 'border border-gray-300 text-gray-700 hover:bg-gray-50' }} rounded-lg transition">
+                    Cancelled ({{ $counts['cancelled'] }})
+                </a>
             </div>
             
             <div class="flex items-center space-x-4">
                 <div class="relative">
-                    <input type="text" placeholder="Search by prescription ID or patient..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pharma-primary">
+                    <input type="text" 
+                           name="search" 
+                           value="{{ request('search') }}"
+                           placeholder="Search by prescription ID or patient..." 
+                           class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pharma-primary">
                     <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                 </div>
-                <input type="date" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pharma-primary">
+                <input type="date" 
+                       name="date" 
+                       value="{{ request('date') }}"
+                       class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pharma-primary">
+                <button type="submit" class="px-4 py-2 bg-pharma-primary text-white rounded-lg hover:bg-red-700 transition">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                @if(request('status') || request('search') || request('date'))
+                    <a href="{{ route('pharmacy.view-prescriptions') }}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                        <i class="fas fa-times"></i> Clear
+                    </a>
+                @endif
+            </div>
+        </form>
+    </div>
+    
+    @if(session('success'))
+        <div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span>{{ session('success') }}</span>
             </div>
         </div>
-    </div>
+    @endif
     
     <!-- Prescriptions Table -->
     <div class="bg-white rounded-xl shadow">

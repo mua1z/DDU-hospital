@@ -119,10 +119,12 @@ class LabController extends Controller
             $validated
         );
 
+        // Mark lab request as completed when results are uploaded
+        // Results with status 'completed' or 'critical' are automatically sent to doctor
         $labRequest->update(['status' => 'completed']);
 
         return redirect()->route('lab.upload-results')
-            ->with('success', 'Lab results uploaded successfully.');
+            ->with('success', 'Lab results uploaded and sent to doctor successfully.');
     }
 
     public function testResults()

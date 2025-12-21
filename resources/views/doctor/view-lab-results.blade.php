@@ -27,88 +27,154 @@
     </div>
     
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Pending Results -->
+        <!-- Latest Results Table -->
         <div class="lg:col-span-2">
             <div class="bg-white rounded-xl shadow">
                 <div class="p-6 border-b">
                     <div class="flex justify-between items-center">
                         <h2 class="text-xl font-bold text-gray-800">Latest Test Results</h2>
-                        <span class="text-gray-600">Total: 15 tests</span>
+                        <span class="text-gray-600">
+                            Total: {{ $labResults->total() }} {{ \Illuminate\Support\Str::plural('test', $labResults->total()) }}
+                        </span>
                     </div>
                 </div>
-                
-                <div class="divide-y">
-                    @foreach($labResults as $result)
-                    <div class="p-6 hover:bg-gray-50 transition">
-                        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-                            <div class="flex items-start space-x-4">
-                                <div class="w-12 h-12 rounded-full {{ $result['bgColor'] }} flex items-center justify-center">
-                                    <i class="{{ $result['icon'] }} {{ $result['textColor'] }} text-lg"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="flex flex-wrap items-center gap-2 mb-2">
-                                        <h3 class="font-bold text-gray-800">{{ $result['patient'] }}</h3>
-                                        <span class="bg-gray-100 text-gray-800 py-1 px-2 rounded text-sm">{{ $result['testType'] }}</span>
-                                        <span class="text-xs text-gray-500">{{ $result['requestId'] }}</span>
-                                    </div>
-                                    
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-                                        @foreach($result['parameters'] as $param)
-                                        <div class="bg-gray-50 p-2 rounded">
-                                            <div class="text-xs text-gray-600">{{ $param['name'] }}</div>
-                                            <div class="font-medium {{ $param['status'] === 'normal' ? 'text-green-600' : 'text-red-600' }}">
-                                                {{ $param['value'] }}
-                                                <span class="text-xs">{{ $param['unit'] }}</span>
-                                            </div>
-                                            <div class="text-xs {{ $param['status'] === 'normal' ? 'text-green-500' : 'text-red-500' }}">
-                                                {{ $param['status'] === 'normal' ? 'Normal' : 'Abnormal' }}
-                                            </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left font-medium text-gray-700">Patient</th>
+                                <th class="px-4 py-3 text-left font-medium text-gray-700">Test</th>
+                                <th class="px-4 py-3 text-left font-medium text-gray-700">Collected</th>
+                                <th class="px-4 py-3 text-left font-medium text-gray-700">Lab Tech</th>
+                                <th class="px-4 py-3 text-left font-medium text-gray-700">Status</th>
+                                <th class="px-4 py-3 text-left font-medium text-gray-700">Result</th>
+                                <th class="px-4 py-3 text-right font-medium text-gray-700">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-100">
+                            @forelse($labResults as $result)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 align-top">
+                                        <div class="font-semibold text-gray-900">
+                                            {{ optional($result->patient)->full_name ?? 'Unknown patient' }}
                                         </div>
-                                        @endforeach
-                                    </div>
-                                    
-                                    <div class="flex items-center text-sm text-gray-600">
-                                        <i class="fas fa-clock mr-2"></i>
-                                        Collected: {{ $result['collected'] }} | 
-                                        <i class="fas fa-user-md ml-4 mr-2"></i>
-                                        Lab Tech: {{ $result['technician'] }}
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="flex flex-col items-end space-y-3">
-                                <span class="{{ $result['statusClass'] }} py-1 px-3 rounded-full text-sm font-medium">
-                                    {{ $result['status'] }}
-                                </span>
-                                
-                                <div class="text-right">
-                                    <div class="text-gray-800 font-medium">{{ $result['testDate'] }}</div>
-                                    <div class="text-gray-600 text-sm">{{ $result['priority'] }}</div>
-                                </div>
-                                
-                                <div class="flex space-x-2">
-                                    <a href="#" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center space-x-2">
-                                        <i class="fas fa-file-pdf"></i>
-                                        <span>View PDF</span>
-                                    </a>
-                                    <a href="{{ route('doctor.write-prescription') }}" class="px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition">
-                                        <i class="fas fa-prescription"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        @if($result['notes'])
-                        <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                            <div class="flex items-start">
-                                <i class="fas fa-exclamation-circle text-yellow-500 mt-1 mr-2"></i>
-                                <div class="text-sm text-gray-700">{{ $result['notes'] }}</div>
-                            </div>
-                        </div>
-                        @endif
-                    </div>
-                    @endforeach
+                                        @if($result->patient)
+                                            <div class="text-xs text-gray-600">
+                                                Card: {{ $result->patient->card_number }}
+                                            </div>
+                                            <div class="text-xs text-gray-500">
+                                                {{ ucfirst($result->patient->gender) }} ·
+                                                DOB: {{ \Illuminate\Support\Carbon::parse($result->patient->date_of_birth)->format('M d, Y') }}
+                                            </div>
+                                        @endif
+                                    </td>
+
+                                    @php
+                                        $rawResult = strtolower(trim((string) ($result->results ?? '')));
+                                        $simpleResult = $rawResult === 'positive' ? 'positive'
+                                            : ($rawResult === 'negative' ? 'negative' : null);
+                                        $resultClass = match($simpleResult) {
+                                            'positive' => 'bg-red-100 text-red-800',
+                                            'negative' => 'bg-green-100 text-green-800',
+                                            default => 'bg-gray-100 text-gray-700',
+                                        };
+                                        $label = $simpleResult ? ucfirst($simpleResult) : 'Null';
+                                    @endphp
+                                    <td class="px-4 py-3 align-top">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {{ $resultClass }}">
+                                            {{ $label }}
+                                        </span>
+                                    </td>
+
+                                    <td class="px-4 py-3 align-top">
+                                        <div class="font-medium text-gray-800">
+                                            {{ optional($result->labRequest)->test_type ?? 'N/A' }}
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            {{ optional($result->labRequest)->request_number }}
+                                        </div>
+                                    </td>
+
+                                    <td class="px-4 py-3 align-top text-sm text-gray-700">
+                                        {{ optional($result->test_date)->format('M d, Y') }}
+                                        @if($result->result_date)
+                                            <div class="text-xs text-gray-500">
+                                                Result: {{ $result->result_date->format('M d, Y') }}
+                                            </div>
+                                        @endif
+                                    </td>
+
+                                    <td class="px-4 py-3 align-top text-sm text-gray-700">
+                                        @if($result->processedBy)
+                                            {{ $result->processedBy->name }}
+                                            @if($result->is_verified && $result->verifiedBy)
+                                                <div class="text-xs text-green-600">
+                                                    Verified by {{ $result->verifiedBy->name }}
+                                                </div>
+                                            @endif
+                                        @else
+                                            <span class="text-xs text-gray-400">Not assigned</span>
+                                        @endif
+                                    </td>
+
+                                    <td class="px-4 py-3 align-top">
+                                        @php
+                                            $statusClass = match($result->status) {
+                                                'completed' => 'bg-green-100 text-green-800',
+                                                'critical' => 'bg-red-100 text-red-800',
+                                                default => 'bg-yellow-100 text-yellow-800',
+                                            };
+                                        @endphp
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {{ $statusClass }}">
+                                            {{ ucfirst($result->status) }}
+                                        </span>
+                                        @if($result->is_verified)
+                                            <div class="mt-1 text-[11px] text-green-600">
+                                                Verified {{ optional($result->verified_at)->format('M d, Y H:i') }}
+                                            </div>
+                                        @endif
+                                    </td>
+
+                                    <td class="px-4 py-3 align-top text-right">
+                                        <div class="flex justify-end space-x-2">
+                                            @if($result->result_file)
+                                                <a href="{{ asset('storage/'.$result->result_file) }}"
+                                                   target="_blank"
+                                                   class="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center space-x-1 text-xs">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                    <span>View PDF</span>
+                                                </a>
+                                            @else
+                                                <span class="px-3 py-1.5 bg-gray-100 text-gray-400 rounded-lg text-xs cursor-not-allowed flex items-center space-x-1">
+                                                    <i class="fas fa-file"></i>
+                                                    <span>No file</span>
+                                                </span>
+                                            @endif
+
+                                            <a href="{{ route('doctor.write-prescription') }}"
+                                               class="px-3 py-1.5 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition text-xs flex items-center">
+                                                <i class="fas fa-prescription"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="px-4 py-6 text-center text-gray-500 text-sm">
+                                        No lab results found.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
+
+                @if($labResults instanceof \Illuminate\Contracts\Pagination\Paginator)
+                    <div class="px-6 py-4 border-t">
+                        {{ $labResults->links() }}
+                    </div>
+                @endif
             </div>
         </div>
         
@@ -214,71 +280,3 @@
     </div>
 </div>
 @endsection
-
-@php
-$labResults = [
-    [
-        'patient' => 'Salem Asfaw',
-        'testType' => 'Complete Blood Count',
-        'requestId' => 'LAB-2024-0012',
-        'parameters' => [
-            ['name' => 'WBC', 'value' => '12.5', 'unit' => '10³/μL', 'status' => 'abnormal'],
-            ['name' => 'RBC', 'value' => '4.8', 'unit' => '10⁶/μL', 'status' => 'normal'],
-            ['name' => 'HGB', 'value' => '14.2', 'unit' => 'g/dL', 'status' => 'normal'],
-            ['name' => 'PLT', 'value' => '350', 'unit' => '10³/μL', 'status' => 'normal'],
-        ],
-        'collected' => 'Today, 09:15 AM',
-        'technician' => 'Dr. Sara',
-        'testDate' => 'Dec 7, 2024',
-        'priority' => 'Urgent',
-        'status' => 'Completed',
-        'statusClass' => 'bg-green-100 text-green-800',
-        'icon' => 'fas fa-tint',
-        'bgColor' => 'bg-red-100',
-        'textColor' => 'text-red-600',
-        'notes' => 'Elevated WBC indicates possible infection. Recommend follow-up.'
-    ],
-    [
-        'patient' => 'Marta Solomon',
-        'testType' => 'Urine Analysis + Pregnancy',
-        'requestId' => 'LAB-2024-0011',
-        'parameters' => [
-            ['name' => 'pH', 'value' => '6.5', 'unit' => '', 'status' => 'normal'],
-            ['name' => 'Glucose', 'value' => 'Negative', 'unit' => '', 'status' => 'normal'],
-            ['name' => 'Protein', 'value' => 'Trace', 'unit' => '', 'status' => 'normal'],
-            ['name' => 'Pregnancy', 'value' => 'Negative', 'unit' => '', 'status' => 'normal'],
-        ],
-        'collected' => 'Yesterday, 04:00 PM',
-        'technician' => 'Dr. Markos',
-        'testDate' => 'Dec 6, 2024',
-        'priority' => 'Routine',
-        'status' => 'Reviewed',
-        'statusClass' => 'bg-blue-100 text-blue-800',
-        'icon' => 'fas fa-vial',
-        'bgColor' => 'bg-green-100',
-        'textColor' => 'text-green-600',
-        'notes' => null
-    ],
-    [
-        'patient' => 'Kebede Abebe',
-        'testType' => 'Allergy Panel',
-        'requestId' => 'LAB-2024-0010',
-        'parameters' => [
-            ['name' => 'IgE Total', 'value' => '250', 'unit' => 'IU/mL', 'status' => 'abnormal'],
-            ['name' => 'Dust Mite', 'value' => 'High', 'unit' => '', 'status' => 'abnormal'],
-            ['name' => 'Pollen', 'value' => 'Moderate', 'unit' => '', 'status' => 'abnormal'],
-            ['name' => 'Food', 'value' => 'Negative', 'unit' => '', 'status' => 'normal'],
-        ],
-        'collected' => 'Dec 5, 2024',
-        'technician' => 'Dr. Sara',
-        'testDate' => 'Dec 6, 2024',
-        'priority' => 'Routine',
-        'status' => 'Pending Review',
-        'statusClass' => 'bg-yellow-100 text-yellow-800',
-        'icon' => 'fas fa-allergies',
-        'bgColor' => 'bg-yellow-100',
-        'textColor' => 'text-yellow-600',
-        'notes' => 'Strong reaction to dust mites. Consider antihistamine prescription.'
-    ],
-];
-@endphp

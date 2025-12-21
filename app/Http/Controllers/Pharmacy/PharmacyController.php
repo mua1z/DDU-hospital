@@ -45,16 +45,42 @@ class PharmacyController extends Controller
         return view('pharmacy.dashboard', compact('stats', 'recentPrescriptions', 'lowStockItems'));
     }
 
-    public function viewPrescriptions()
+    public function viewPrescriptions(Request $request)
     {
-        $prescriptions = Prescription::with(['patient', 'prescribedBy', 'items.medication'])
-            ->orderBy('prescription_date', 'desc')
-            ->paginate(20);
+        $query = Prescription::with(['patient', 'prescribedBy', 'items.medication']);
+        
+        // Filter by status if provided
+        if ($request->has('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+        
+        // Search by prescription number or patient name
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('prescription_number', 'like', "%{$search}%")
+                  ->orWhereHas('patient', function($patientQuery) use ($search) {
+                      $patientQuery->where('full_name', 'like', "%{$search}%")
+                                   ->orWhere('card_number', 'like', "%{$search}%");
+                  });
+            });
+        }
+        
+        // Filter by date if provided
+        if ($request->has('date') && $request->date) {
+            $query->whereDate('prescription_date', $request->date);
+        }
+        
+        $prescriptions = $query->orderBy('prescription_date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20)
+            ->withQueryString();
 
         $counts = [
             'total' => Prescription::count(),
             'pending' => Prescription::where('status', 'pending')->count(),
             'dispensed' => Prescription::where('status', 'dispensed')->count(),
+            'completed' => Prescription::where('status', 'completed')->count(),
             'cancelled' => Prescription::where('status', 'cancelled')->count(),
         ];
 
@@ -63,6 +89,7 @@ class PharmacyController extends Controller
 
     public function dispenseMedications()
     {
+        // Show prescriptions that are pending (sent from doctor) or partially dispensed
         $prescriptions = Prescription::with(['patient', 'prescribedBy', 'items.medication'])
             ->whereIn('status', ['pending', 'partially_dispensed'])
             ->orderBy('prescription_date')
@@ -171,8 +198,7 @@ class PharmacyController extends Controller
             'pharmacy_notes' => 'nullable|string',
         ]);
 
-        $prescription = Prescription::findOrFail($id);
-        $allDispensed = true;
+        $prescription = Prescription::with('items')->findOrFail($id);
         $someDispensed = false;
 
         foreach ($validated['items'] as $itemData) {
@@ -191,7 +217,6 @@ class PharmacyController extends Controller
                         $someDispensed = true;
                     } else {
                         $item->update(['status' => 'out_of_stock']);
-                        $allDispensed = false;
                     }
                 } else {
                     // Try to find available inventory
@@ -207,28 +232,35 @@ class PharmacyController extends Controller
                         $someDispensed = true;
                     } else {
                         $item->update(['status' => 'out_of_stock']);
-                        $allDispensed = false;
                     }
                 }
             } else {
                 $item->update(['status' => $itemData['status']]);
                 if ($itemData['status'] === 'dispensed') {
                     $someDispensed = true;
-                } else {
-                    $allDispensed = false;
                 }
             }
         }
 
+        // Refresh prescription to get updated items
+        $prescription->refresh();
+        
+        // Check if all items are dispensed
+        $allItemsDispensed = $prescription->items->every(function ($item) {
+            return $item->status === 'dispensed';
+        });
+
         // Update prescription status
-        if ($allDispensed && $someDispensed) {
-            $prescription->update(['status' => 'dispensed']);
+        if ($allItemsDispensed && $prescription->items->isNotEmpty()) {
+            // All items dispensed - mark as completed (workflow finished)
+            $prescription->update(['status' => 'completed']);
         } elseif ($someDispensed) {
+            // Some items dispensed - mark as partially dispensed
             $prescription->update(['status' => 'partially_dispensed']);
         }
 
         return redirect()->route('pharmacy.dispense-medications')
-            ->with('success', 'Medications dispensed successfully.');
+            ->with('success', 'Medications dispensed successfully. Prescription marked as completed.');
     }
 
     public function inventoryManagement()
