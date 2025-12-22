@@ -79,7 +79,7 @@
     <div class="p-6 border-t border-purple-700">
         <form method="POST" action="{{ route('logout') }}" id="logout-form">
             @csrf
-            <button type="submit" class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition text-left text-white">
+            <button type="submit" class="w-full flex items-center space-x-3 p-3 rounded-lg bg-green-600 hover:bg-green-700 transition text-left text-white shadow-md">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Logout</span>
             </button>

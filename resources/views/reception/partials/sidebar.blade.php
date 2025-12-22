@@ -72,11 +72,23 @@
     <div class="p-6 border-t border-purple-700">
         <form method="POST" action="{{ route('logout') }}" id="logout-form">
             @csrf
-            <button type="submit" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition text-left text-white">
+            <button type="submit" class="w-full flex items-center space-x-3 p-3 rounded-lg bg-green-600 hover:bg-green-700 transition text-left text-white shadow-md">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Logout</span>
             </button>
         </form>
     </div>
+    <script>
+        document.getElementById('logout-form')?.addEventListener('submit', function(e) {
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (token) {
+                const formToken = this.querySelector('input[name="_token"]');
+                if (formToken) {
+                    formToken.value = token;
+                }
+            }
+        });
+    </script>
+
 
 </aside>

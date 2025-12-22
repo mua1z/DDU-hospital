@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'DDU Clinics - Doctor')</title>
+    <title>@yield('title', 'DDU Clinics - Admin')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -13,11 +13,12 @@
             theme: {
                 extend: {
                     colors: {
-                        'ddu-primary': '#059669', /* Green theme for doctors */
-                        'ddu-secondary': '#10b981',
-                        'ddu-accent': '#3b82f6',
-                        'ddu-light': '#f0fdf4',
-                        'ddo-dark': '#065f46',
+                        'ddu-primary': '#1e40af',
+                        'ddu-secondary': '#3b82f6',
+                        'ddu-accent': '#10b981',
+                        'ddu-light': '#f0f9ff',
+                        'lab-primary': '#6d28d9', /* Purple theme base */
+                        'lab-dark': '#4c1d95',
                     },
                     fontFamily: {
                         'poppins': ['Poppins', 'sans-serif'],
@@ -51,6 +52,7 @@
         }
         
         .dashboard-card:hover {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             transform: translateY(-5px);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
@@ -64,42 +66,23 @@
                 transform: translateX(0);
             }
         }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #059669;
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #047857;
-        }
     </style>
     @yield('styles')
 </head>
 <body class="font-poppins bg-gray-50">
     <!-- Mobile Menu Toggle Button -->
-    <button id="menuToggle" class="lg:hidden fixed top-4 left-4 z-50 p-3 rounded-lg bg-ddu-primary text-white shadow-lg">
+    <button id="menuToggle" class="lg:hidden fixed top-4 left-4 z-50 p-3 rounded-lg bg-purple-700 text-white shadow-lg">
         <i class="fas fa-bars text-xl"></i>
     </button>
     
     <div class="flex h-screen">
         <!-- Sidebar -->
-        @include('doctor.partials.sidebar')
+        @include('admin.partials.sidebar')
         
         <!-- Main Content -->
         <main class="flex-1 overflow-y-auto">
             <!-- Top Bar -->
-            @include('doctor.partials.topbar')
+            @include('admin.partials.topbar')
             
             <!-- Dashboard Content -->
             <div class="p-4 lg:p-6">

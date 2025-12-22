@@ -26,6 +26,13 @@ Route::middleware(['auth', EnsureAdmin::class])->prefix('admin')->name('admin.')
     Route::get('users/{user}/change-password', [AdminUserController::class, 'showChangePassword'])->name('users.change-password.form');
     Route::post('users/{user}/change-password', [AdminUserController::class, 'changePassword'])->name('users.change-password');
     Route::post('users/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->name('users.reset-password');
+    
+    // System Settings
+    Route::get('settings', [App\Http\Controllers\Admin\AdminSettingsController::class, 'index'])->name('settings.index');
+    Route::post('settings', [App\Http\Controllers\Admin\AdminSettingsController::class, 'update'])->name('settings.update');
+
+    // System Logs
+    Route::get('logs', [App\Http\Controllers\Admin\AdminLogsController::class, 'index'])->name('logs.index');
 });
 
 Route::middleware('auth')->group(function () {

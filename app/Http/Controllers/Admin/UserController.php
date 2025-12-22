@@ -82,8 +82,16 @@ class UserController extends Controller
             return redirect()->route('admin.users.index')->with('status', 'You cannot delete your own admin account');
         }
 
-        $user->delete();
-        return redirect()->route('admin.users.index')->with('status', 'User deleted');
+        try {
+            $user->delete();
+            return redirect()->route('admin.users.index')->with('status', 'User deleted successfully');
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Check for foreign key constraint violation code
+            if ($e->getCode() == 23000) {
+                return redirect()->route('admin.users.index')->with('error', 'Cannot delete user: This user is referenced in other records (e.g. appointments, prescriptions).');
+            }
+            return redirect()->route('admin.users.index')->with('error', 'Error deleting user: ' . $e->getMessage());
+        }
     }
 
     // Reset password to a temporary value and return it for admin to give to user

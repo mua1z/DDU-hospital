@@ -17,7 +17,15 @@ class DashboardController extends Controller
 
         switch (strtolower($role)) {
             case 'admin':
-                return view('dashboards.admin');
+                $stats = [
+                    'total_users' => \App\Models\User::count(),
+                    'doctors' => \App\Models\User::where('role', 'Doctors')->count(),
+                    'lab' => \App\Models\User::where('role', 'Laboratory')->count(),
+                    'pharmacy' => \App\Models\User::where('role', 'Pharmacist')->count(),
+                    'reception' => \App\Models\User::where('role', 'Receptions')->count(),
+                ];
+                $recent_users = \App\Models\User::latest()->take(5)->get();
+                return view('dashboards.admin', compact('stats', 'recent_users'));
             case 'receptions':
                 $receptionController = new ReceptionController();
                 return $receptionController->dashboard();

@@ -3,24 +3,24 @@
     <div class="p-6 border-b border-purple-700">
         <div class="flex items-center space-x-3">
             <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-                <i class="fas fa-stethoscope text-purple-600 text-xl"></i>
+                <i class="fas fa-shield-alt text-purple-600 text-xl"></i>
             </div>
             <div>
                 <h1 class="text-xl font-bold">DDU Clinics</h1>
-                <p class="text-purple-200 text-xs">Doctor Portal</p>
+                <p class="text-purple-200 text-xs">Admin Portal</p>
             </div>
         </div>
     </div>
     
-    <!-- Doctor Profile -->
+    <!-- Admin Profile -->
     <div class="p-6 border-b border-purple-700">
         <div class="flex items-center space-x-3">
             <div class="w-12 h-12 rounded-full bg-purple-800 flex items-center justify-center">
-                <i class="fas fa-user-md text-white text-xl"></i>
+                <i class="fas fa-user-shield text-white text-xl"></i>
             </div>
             <div>
                 <h2 class="font-semibold">{{ auth()->user()->name }}</h2>
-                <p class="text-purple-200 text-sm">General Physician</p>
+                <p class="text-purple-200 text-sm">System Administrator</p>
                 <p class="text-purple-300 text-xs">ID: {{ auth()->user()->dduc_id }}</p>
             </div>
         </div>
@@ -30,39 +30,27 @@
     <nav class="flex-1 p-6">
         <ul class="space-y-2">
             <li class="nav-item">
-                <a href="{{ route('doctor.dashboard') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
+                <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('doctor.view-appointments') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
-                    <i class="fas fa-calendar-check"></i>
-                    <span>View Appointments</span>
+                <a href="{{ route('admin.users.index') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
+                    <i class="fas fa-users"></i>
+                    <span>Manage Users</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('doctor.request-lab-test') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
-                    <i class="fas fa-flask"></i>
-                    <span>Request Lab Test</span>
+                <a href="{{ route('admin.settings.index') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
+                    <i class="fas fa-cogs"></i>
+                    <span>System Settings</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('doctor.view-lab-results') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
-                    <i class="fas fa-file-medical-alt"></i>
-                    <span>View Lab Results</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('doctor.write-prescription') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
-                    <i class="fas fa-prescription-bottle-alt"></i>
-                    <span>Write Prescription</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('doctor.document-history') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
-                    <i class="fas fa-history"></i>
-                    <span>Document Patient History</span>
+                <a href="{{ route('admin.logs.index') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
+                    <i class="fas fa-file-alt"></i>
+                    <span>System Logs</span>
                 </a>
             </li>
         </ul>
@@ -78,6 +66,7 @@
             </button>
         </form>
     </div>
+    
     <script>
         document.getElementById('logout-form')?.addEventListener('submit', function(e) {
             const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
