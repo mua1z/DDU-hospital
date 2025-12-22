@@ -138,6 +138,14 @@ class LabController extends Controller
         return view('lab.test-results', compact('results'));
     }
 
+    public function viewResultDetails($id)
+    {
+        $result = LabResult::with(['patient', 'labRequest.requestedBy', 'processedBy'])
+            ->findOrFail($id);
+
+        return view('lab.view-result-details', compact('result'));
+    }
+
     public function inventory()
     {
         // Placeholder for inventory management

@@ -58,7 +58,10 @@
                             <span class="{{ $statusColor }} py-1 px-3 rounded-full text-sm font-medium">{{ ucfirst($result->status) }}</span>
                         </td>
                         <td class="py-4 px-4">
-                            <a href="#" class="text-lab-primary hover:underline font-medium">View Details</a>
+                            <a href="{{ route('lab.view-result-details', $result->id) }}" class="text-lab-primary hover:underline font-medium flex items-center">
+                                <i class="fas fa-eye mr-1"></i>
+                                View Details
+                            </a>
                         </td>
                     </tr>
                     @empty

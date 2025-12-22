@@ -72,7 +72,7 @@
                                     <i class="fas fa-upload text-xs"></i>
                                     <span>Upload Results</span>
                                 </a>
-                                <a href="#"
+                                <a href="{{ route('lab.view-result-details', $test->id) }}"
                                    class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm flex items-center space-x-1">
                                     <i class="fas fa-eye text-xs"></i>
                                     <span>View</span>

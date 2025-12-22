@@ -8,6 +8,10 @@ Route::get('/', function () {
     return view('home');
 });
 
+Route::view('/about', 'about');
+Route::view('/services', 'services');
+Route::view('/contact', 'contact');
+
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Middleware\EnsureAdmin;
@@ -80,6 +84,7 @@ Route::middleware(['auth'])->prefix('lab')->name('lab.')->group(function () {
     Route::get('/upload-results', [LabController::class, 'uploadResults'])->name('upload-results');
     Route::post('/upload-results', [LabController::class, 'storeResults'])->name('store-results');
     Route::get('/test-results', [LabController::class, 'testResults'])->name('test-results');
+    Route::get('/test-results/{id}', [LabController::class, 'viewResultDetails'])->name('view-result-details');
     Route::get('/inventory', [LabController::class, 'inventory'])->name('inventory');
     Route::get('/quality-control', [LabController::class, 'qualityControl'])->name('quality-control');
 });
