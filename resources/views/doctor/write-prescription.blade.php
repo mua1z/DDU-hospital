@@ -529,6 +529,18 @@
             patientResults.classList.add('hidden');
         }
 
+        // Auto-select patient from controller if available
+        @if(isset($selectedPatient) && $selectedPatient)
+        const preSelectedPatient = {
+            id: "{{ $selectedPatient->id }}",
+            name: "{{ $selectedPatient->full_name }}",
+            age: "{{ \Carbon\Carbon::parse($selectedPatient->date_of_birth)->age }}",
+            gender: "{{ ucfirst($selectedPatient->gender) }}",
+            phone: "{{ $selectedPatient->phone }}"
+        };
+        selectPatient(preSelectedPatient);
+        @endif
+
         // Add medicine row
         document.getElementById('addMedicineBtn').addEventListener('click', addMedicineRow);
 

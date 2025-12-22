@@ -152,7 +152,7 @@
                                                 </span>
                                             @endif
 
-                                            <a href="{{ route('doctor.write-prescription') }}"
+                                            <a href="{{ route('doctor.write-prescription', ['patient_id' => $result->patient_id]) }}"
                                                class="px-3 py-1.5 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition text-xs flex items-center">
                                                 <i class="fas fa-prescription"></i>
                                             </a>

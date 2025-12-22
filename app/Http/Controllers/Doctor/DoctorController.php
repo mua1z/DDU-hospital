@@ -156,7 +156,7 @@ class DoctorController extends Controller
             ->with('success', 'Lab test requested successfully.');
     }
 
-    public function writePrescription() 
+    public function writePrescription(Request $request) 
     {
         $patients = Patient::orderBy('full_name')->get();
         // Get appointments for today to pre-fill or link
@@ -165,7 +165,12 @@ class DoctorController extends Controller
             ->whereDate('appointment_date', now()->toDateString())
             ->get();
             
-        return view('doctor.write-prescription', compact('patients', 'appointments'));
+        $selectedPatient = null;
+        if ($request->has('patient_id')) {
+            $selectedPatient = Patient::find($request->patient_id);
+        }
+
+        return view('doctor.write-prescription', compact('patients', 'appointments', 'selectedPatient'));
     }
 
     public function storePrescription(Request $request)

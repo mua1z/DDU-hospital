@@ -164,7 +164,7 @@ class PharmacyController extends Controller
         $validated = $request->validate([
             'items' => 'required|array',
             'items.*.item_id' => 'required|exists:prescription_items,id',
-            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.quantity' => 'required|integer|min:0',
             'items.*.batch_id' => 'nullable|exists:inventory,id',
             'items.*.status' => 'required|in:dispensed,out_of_stock,cancelled',
             'patient_instructions' => 'nullable|string',
