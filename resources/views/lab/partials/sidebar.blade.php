@@ -19,9 +19,9 @@
                 <i class="fas fa-user-md text-white text-xl"></i>
             </div>
             <div>
-                <h2 class="font-semibold">Lab Technician</h2>
+                <h2 class="font-semibold">{{ auth()->user()->name }}</h2>
                 <p class="text-purple-200 text-sm">Clinical Laboratory</p>
-                <p class="text-purple-300 text-xs">Lab ID: LT-101</p>
+                <p class="text-purple-300 text-xs">ID: {{ auth()->user()->dduc_id }}</p>
             </div>
         </div>
     </div>

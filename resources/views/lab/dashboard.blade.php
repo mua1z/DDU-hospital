@@ -11,7 +11,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-gray-600 text-sm">Pending Tests</p>
-                <h3 class="text-2xl font-bold text-gray-800 mt-2">8</h3>
+                <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['pending_tests'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
                 <i class="fas fa-clock text-red-600 text-xl"></i>
@@ -26,7 +26,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-gray-600 text-sm">Today's Tests</p>
-                <h3 class="text-2xl font-bold text-gray-800 mt-2">15</h3>
+                <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['today_tests'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
                 <i class="fas fa-vial text-blue-600 text-xl"></i>
@@ -41,7 +41,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-gray-600 text-sm">Results Pending</p>
-                <h3 class="text-2xl font-bold text-gray-800 mt-2">3</h3>
+                <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['results_pending'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
                 <i class="fas fa-file-upload text-yellow-600 text-xl"></i>
@@ -56,7 +56,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-gray-600 text-sm">Critical Results</p>
-                <h3 class="text-2xl font-bold text-gray-800 mt-2">2</h3>
+                <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['critical_results'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
                 <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
@@ -92,83 +92,39 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @forelse($pendingRequests as $request)
                         <tr class="border-b hover:bg-gray-50 transition">
                             <td class="py-4 px-4">
-                                <span class="font-mono font-bold text-gray-800">REQ1021</span>
+                                <span class="font-mono font-bold text-gray-800">REQ{{ $request->id }}</span>
                             </td>
                             <td class="py-4 px-4">
                                 <div class="flex items-center">
                                     <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
                                         <i class="fas fa-user text-blue-600 text-sm"></i>
                                     </div>
-                                    <span>Liya Akiliu</span>
+                                    <span>{{ $request->patient->full_name }}</span>
                                 </div>
                             </td>
                             <td class="py-4 px-4">
-                                <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm font-medium">STU0921</span>
+                                <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm font-medium">{{ $request->patient->card_number }}</span>
                             </td>
-                            <td class="py-4 px-4">Malaria Smear</td>
+                            <td class="py-4 px-4">{{ $request->test_type }}</td>
                             <td class="py-4 px-4">
-                                <span class="bg-yellow-100 text-yellow-800 py-1 px-3 rounded-full text-sm font-medium">In Queue</span>
+                                <span class="bg-yellow-100 text-yellow-800 py-1 px-3 rounded-full text-sm font-medium">{{ ucfirst(str_replace('_', ' ', $request->status)) }}</span>
                             </td>
                             <td class="py-4 px-4">
-                                <a href="{{ route('lab.process-test') }}" class="px-4 py-2 bg-lab-primary text-white rounded-lg hover:bg-purple-700 transition text-sm">
+                                <a href="{{ route('lab.process-test', $request->id) }}" class="px-4 py-2 bg-lab-primary text-white rounded-lg hover:bg-purple-700 transition text-sm">
                                     Start
                                 </a>
                             </td>
                         </tr>
-                        
-                        <tr class="border-b hover:bg-gray-50 transition">
-                            <td class="py-4 px-4">
-                                <span class="font-mono font-bold text-gray-800">REQ1022</span>
-                            </td>
-                            <td class="py-4 px-4">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
-                                        <i class="fas fa-user text-green-600 text-sm"></i>
-                                    </div>
-                                    <span>Robel Bekele</span>
-                                </div>
-                            </td>
-                            <td class="py-4 px-4">
-                                <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm font-medium">STU0817</span>
-                            </td>
-                            <td class="py-4 px-4">Urinalysis</td>
-                            <td class="py-4 px-4">
-                                <span class="bg-yellow-100 text-yellow-800 py-1 px-3 rounded-full text-sm font-medium">In Queue</span>
-                            </td>
-                            <td class="py-4 px-4">
-                                <a href="{{ route('lab.process-test') }}" class="px-4 py-2 bg-lab-primary text-white rounded-lg hover:bg-purple-700 transition text-sm">
-                                    Start
-                                </a>
+                        @empty
+                        <tr>
+                            <td colspan="6" class="py-8 text-center text-gray-500">
+                                No pending requests
                             </td>
                         </tr>
-                        
-                        <tr class="hover:bg-gray-50 transition">
-                            <td class="py-4 px-4">
-                                <span class="font-mono font-bold text-gray-800">REQ1023</span>
-                            </td>
-                            <td class="py-4 px-4">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center mr-3">
-                                        <i class="fas fa-user text-pink-600 text-sm"></i>
-                                    </div>
-                                    <span>Kebede Abebe</span>
-                                </div>
-                            </td>
-                            <td class="py-4 px-4">
-                                <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm font-medium">STU0225</span>
-                            </td>
-                            <td class="py-4 px-4">Blood Count</td>
-                            <td class="py-4 px-4">
-                                <span class="bg-blue-100 text-blue-800 py-1 px-3 rounded-full text-sm font-medium">Processing</span>
-                            </td>
-                            <td class="py-4 px-4">
-                                <a href="{{ route('lab.upload-results') }}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm">
-                                    Upload
-                                </a>
-                            </td>
-                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -197,62 +153,32 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="border-b hover:bg-gray-50 transition">
-                            <td class="py-4 px-4">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                                        <i class="fas fa-user text-blue-600 text-sm"></i>
-                                    </div>
-                                    <span>Selam Tadesse</span>
-                                </div>
-                            </td>
-                            <td class="py-4 px-4">
-                                <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm font-medium">STU0723</span>
-                            </td>
-                            <td class="py-4 px-4">Blood Count</td>
-                            <td class="py-4 px-4">2025-06-03</td>
-                            <td class="py-4 px-4">
-                                <a href="#" class="text-lab-primary hover:underline font-medium">View</a>
-                            </td>
-                        </tr>
-                        
+                        @forelse($recentResults as $result)
                         <tr class="border-b hover:bg-gray-50 transition">
                             <td class="py-4 px-4">
                                 <div class="flex items-center">
                                     <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
                                         <i class="fas fa-user text-green-600 text-sm"></i>
                                     </div>
-                                    <span>Mohammed Dawud</span>
+                                    <span>{{ $result->patient->full_name }}</span>
                                 </div>
                             </td>
                             <td class="py-4 px-4">
-                                <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm font-medium">STU0187</span>
+                                <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm font-medium">{{ $result->patient->card_number }}</span>
                             </td>
-                            <td class="py-4 px-4">Covid-19 Test</td>
-                            <td class="py-4 px-4">2025-06-02</td>
+                            <td class="py-4 px-4">{{ $result->labRequest->test_type }}</td>
+                            <td class="py-4 px-4">{{ $result->test_date }}</td>
                             <td class="py-4 px-4">
-                                <span class="bg-green-100 text-green-800 py-1 px-3 rounded-full text-sm font-medium">Negative</span>
+                                <a href="{{ route('lab.test-results') }}" class="text-lab-primary hover:underline font-medium">View</a>
                             </td>
                         </tr>
-                        
-                        <tr class="hover:bg-gray-50 transition">
-                            <td class="py-4 px-4">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-3">
-                                        <i class="fas fa-user text-red-600 text-sm"></i>
-                                    </div>
-                                    <span>Marta Solomon</span>
-                                </div>
-                            </td>
-                            <td class="py-4 px-4">
-                                <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm font-medium">STU0224</span>
-                            </td>
-                            <td class="py-4 px-4">Pregnancy Test</td>
-                            <td class="py-4 px-4">2025-06-01</td>
-                            <td class="py-4 px-4">
-                                <span class="bg-red-100 text-red-800 py-1 px-3 rounded-full text-sm font-medium">Positive</span>
+                        @empty
+                        <tr>
+                            <td colspan="5" class="py-8 text-center text-gray-500">
+                                No recent results
                             </td>
                         </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

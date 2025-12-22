@@ -19,8 +19,9 @@
                 <i class="fas fa-user-md text-white text-xl"></i>
             </div>
             <div>
-                <h2 class="font-semibold">Receptionist / Clerk</h2>
+                <h2 class="font-semibold">{{ auth()->user()->name }}</h2>
                 <p class="text-blue-200 text-sm">DDU Main Campus</p>
+                <p class="text-blue-300 text-xs">ID: {{ auth()->user()->dduc_id }}</p>
             </div>
         </div>
     </div>

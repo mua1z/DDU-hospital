@@ -21,7 +21,7 @@
             <div>
                 <h2 class="font-semibold">{{ auth()->user()->name }}</h2>
                 <p class="text-green-200 text-sm">General Physician</p>
-                <p class="text-green-300 text-xs">Room: 101</p>
+                <p class="text-green-300 text-xs">ID: {{ auth()->user()->dduc_id }}</p>
             </div>
         </div>
     </div>
