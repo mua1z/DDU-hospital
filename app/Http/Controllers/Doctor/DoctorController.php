@@ -12,7 +12,6 @@ use App\Models\PrescriptionItem;
 use App\Models\Medication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\DB;
 
 class DoctorController extends Controller
 {
@@ -157,63 +156,111 @@ class DoctorController extends Controller
             ->with('success', 'Lab test requested successfully.');
     }
 
+    public function writePrescription() 
+    {
+        $patients = Patient::orderBy('full_name')->get();
+        // Get appointments for today to pre-fill or link
+        $appointments = Appointment::with('patient')
+            ->where('doctor_id', auth()->id())
+            ->whereDate('appointment_date', now()->toDateString())
+            ->get();
+            
+        return view('doctor.write-prescription', compact('patients', 'appointments'));
+    }
+
+    public function storePrescription(Request $request)
+    {
+        $validated = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'appointment_id' => 'nullable|exists:appointments,id',
+            'date' => 'required|date',
+            'diagnosis' => 'required|string',
+            'notes' => 'nullable|string',
+            'diet_instructions' => 'nullable|string',
+            'follow_up' => 'nullable|string',
+            'medicines' => 'required|array|min:1',
+            'medicines.*.name' => 'required|string',
+            'medicines.*.dosage' => 'required|string',
+            'medicines.*.frequency' => 'required|string',
+            'medicines.*.duration' => 'required|string',
+            'medicines.*.quantity' => 'required|integer|min:1',
+            'medicines.*.instructions' => 'nullable|string',
+        ]);
+
+        // Generate unique prescription number
+        $prescriptionNumber = 'PR-' . strtoupper(Str::random(10));
+
+        $prescription = Prescription::create([
+            'prescription_number' => $prescriptionNumber,
+            'patient_id' => $validated['patient_id'],
+            'appointment_id' => $validated['appointment_id'],
+            'prescribed_by' => auth()->id(),
+            'diagnosis' => $validated['diagnosis'],
+            'notes' => $validated['notes'],
+            'prescription_date' => $validated['date'],
+            'status' => 'pending',
+        ]);
+
+        foreach ($validated['medicines'] as $medData) {
+            // Find or create the medication
+            $medication = Medication::firstOrCreate(
+                ['name' => $medData['name']],
+                [
+                    // Defaults for a new medication created on the fly
+                    'generic_name' => $medData['name'], 
+                    'is_active' => true,
+                    'requires_prescription' => true
+                ]
+            );
+
+            PrescriptionItem::create([
+                'prescription_id' => $prescription->id,
+                'medication_id' => $medication->id,
+                'dosage' => $medData['dosage'],
+                'frequency' => $medData['frequency'],
+                'quantity' => $medData['quantity'],
+                // Duration matches the string from dropdown e.g. "5 days". 
+                // We might want to parse this to integer days if possible, or just store comments
+                // The DB expects integer 'duration_days'. Let's attempt to parse or default to null,
+                // and store the string in instructions if needed is not fitting.
+                // However, the DB schema for prescription_items uses 'duration_days' (int).
+                // The form sends strings like "5 days". Let's extract the integer.
+                'duration_days' => intval($medData['duration']), 
+                'instructions' => $medData['instructions'],
+                'status' => 'pending',
+            ]);
+        }
+        
+        // Append extra instructions to notes if present, as there are no dedicated columns on prescription table for these yet
+        if (!empty($validated['diet_instructions']) || !empty($validated['follow_up'])) {
+            $extraNotes = "";
+            if (!empty($validated['diet_instructions'])) {
+                $extraNotes .= "\nDidt/Lifestyle: " . $validated['diet_instructions'];
+            }
+            if (!empty($validated['follow_up'])) {
+                $extraNotes .= "\nFollow-up: " . $validated['follow_up'];
+            }
+            $prescription->notes .= $extraNotes;
+            $prescription->save();
+        }
+
+        return redirect()->route('doctor.write-prescription')
+            ->with('success', 'Prescription created successfully.');
+    }
+
     public function viewLabResults()
     {
         $doctorId = auth()->id();
 
-        // Only show lab results that have been sent to doctor (status: completed or critical)
-        $labResults = LabResult::with(['patient', 'labRequest', 'processedBy'])
+        $labResults = LabResult::with(['patient', 'labRequest'])
             ->whereHas('labRequest', function ($query) use ($doctorId) {
                 $query->where('requested_by', $doctorId);
             })
-            ->whereIn('status', ['completed', 'critical']) // Only show results sent to doctor
             ->orderBy('test_date', 'desc')
             ->paginate(20);
 
         return view('doctor.view-lab-results', compact('labResults'));
     }
-
-public function writePrescription()
-{ $doctorId = auth()->id();
-    $patients = Patient::orderBy('full_name')->get();
-    $medications = Medication::where('is_active', true)->orderBy('name')->get();
-    $appointments = Appointment::with('patient') ->where('doctor_id', $doctorId) ->whereDate('appointment_date', now()->toDateString()) ->get(); // Get recent prescriptions for this doctor
-    $recentPrescriptions = Prescription::with(['patient', 'items.medication', 'prescribedBy']) ->where('prescribed_by', $doctorId) ->orderBy('prescription_date', 'desc') ->orderBy('created_at', 'desc') ->limit(10) ->get();
-     return view('doctor.write-prescription', compact('patients', 'medications', 'appointments', 'recentPrescriptions')); }
-
-   public function storePrescription(Request $request)
-{
-    $request->validate([
-        'patient_id' => 'required|exists:patients,id',
-        'medications' => 'required|array|min:1',
-        'medications.*.medication_id' => 'required|exists:medications,id',
-        'medications.*.dosage' => 'required',
-        'medications.*.frequency' => 'required',
-        'medications.*.quantity' => 'required|integer|min:1',
-    ]);
-
-    $prescription = Prescription::create([
-        'patient_id' => $request->patient_id,
-        'doctor_id' => auth()->id(),
-        'diagnosis' => $request->diagnosis,
-        'notes' => $request->notes,
-        'status' => 'sent_to_pharmacy',
-    ]);
-
-    foreach ($request->medications as $med) {
-        PrescriptionItem::create([
-            'prescription_id' => $prescription->id,
-            'medication_id' => $med['medication_id'],
-            'dosage' => $med['dosage'],
-            'frequency' => $med['frequency'],
-            'quantity' => $med['quantity'],
-            'duration_days' => $med['duration_days'] ?? null,
-            'instructions' => $med['instructions'] ?? null,
-        ]);
-    }
-
-    return redirect()->back()->with('success', 'Prescription sent to pharmacy successfully.');
-}
 
 
     public function consultAppointment(Request $request, Appointment $appointment)
