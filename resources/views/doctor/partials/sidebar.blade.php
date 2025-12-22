@@ -19,7 +19,7 @@
                 <i class="fas fa-user-md text-white text-xl"></i>
             </div>
             <div>
-                <h2 class="font-semibold">Dr. Ahmed Ali</h2>
+                <h2 class="font-semibold">{{ auth()->user()->name }}</h2>
                 <p class="text-green-200 text-sm">General Physician</p>
                 <p class="text-green-300 text-xs">Room: 101</p>
             </div>

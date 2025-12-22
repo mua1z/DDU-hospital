@@ -11,7 +11,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-gray-600 text-sm">Pending Prescriptions</p>
-                <h3 class="text-2xl font-bold text-gray-800 mt-2">8</h3>
+                <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['pending_prescriptions'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
                 <i class="fas fa-prescription text-blue-600 text-xl"></i>
@@ -26,7 +26,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-gray-600 text-sm">Today's Dispensed</p>
-                <h3 class="text-2xl font-bold text-gray-800 mt-2">15</h3>
+                <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['today_dispensed'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
                 <i class="fas fa-pills text-green-600 text-xl"></i>
@@ -41,7 +41,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-gray-600 text-sm">Low Stock Items</p>
-                <h3 class="text-2xl font-bold text-gray-800 mt-2">5</h3>
+                <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['low_stock_items'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
                 <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
@@ -56,7 +56,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-gray-600 text-sm">Expiring Soon</p>
-                <h3 class="text-2xl font-bold text-gray-800 mt-2">3</h3>
+                <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['expiring_soon'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
                 <i class="fas fa-calendar-times text-yellow-600 text-xl"></i>
@@ -91,89 +91,45 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @forelse($recentPrescriptions as $prescription)
                         <tr class="border-b hover:bg-gray-50 transition">
                             <td class="py-4 px-4">
-                                <span class="font-mono font-bold text-gray-800">RX0034</span>
+                                <span class="font-mono font-bold text-gray-800">{{ $prescription->prescription_number }}</span>
                             </td>
                             <td class="py-4 px-4">
                                 <div class="flex items-center">
                                     <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
                                         <i class="fas fa-user text-blue-600 text-sm"></i>
                                     </div>
-                                    <span>Ruth Asnake</span>
+                                    <span>{{ $prescription->patient->full_name }}</span>
                                 </div>
                             </td>
                             <td class="py-4 px-4">
-                                <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm font-medium">STU1102</span>
+                                <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm font-medium">{{ $prescription->patient->card_number }}</span>
                             </td>
                             <td class="py-4 px-4">
                                 <div class="flex flex-wrap gap-1">
-                                    <span class="bg-blue-100 text-blue-800 py-1 px-2 rounded text-xs">Paracetamol</span>
-                                    <span class="bg-green-100 text-green-800 py-1 px-2 rounded text-xs">Amoxicillin</span>
+                                    @foreach($prescription->items->take(2) as $item)
+                                    <span class="bg-blue-100 text-blue-800 py-1 px-2 rounded text-xs">{{ $item->medication->name }}</span>
+                                    @endforeach
+                                    @if($prescription->items->count() > 2)
+                                    <span class="bg-gray-100 text-gray-800 py-1 px-2 rounded text-xs">+{{ $prescription->items->count() - 2 }}</span>
+                                    @endif
                                 </div>
                             </td>
                             <td class="py-4 px-4">
-                                <a href="{{ route('pharmacy.dispense-medications') }}" class="px-4 py-2 bg-pharma-primary text-white rounded-lg hover:bg-red-700 transition text-sm">
+                                <a href="{{ route('pharmacy.show-dispense-form', $prescription->id) }}" class="px-4 py-2 bg-pharma-primary text-white rounded-lg hover:bg-red-700 transition text-sm">
                                     Dispense
                                 </a>
                             </td>
                         </tr>
-                        
-                        <tr class="border-b hover:bg-gray-50 transition">
-                            <td class="py-4 px-4">
-                                <span class="font-mono font-bold text-gray-800">RX0035</span>
-                            </td>
-                            <td class="py-4 px-4">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
-                                        <i class="fas fa-user text-green-600 text-sm"></i>
-                                    </div>
-                                    <span>Salem Asfaw</span>
-                                </div>
-                            </td>
-                            <td class="py-4 px-4">
-                                <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm font-medium">STU0150</span>
-                            </td>
-                            <td class="py-4 px-4">
-                                <div class="flex flex-wrap gap-1">
-                                    <span class="bg-blue-100 text-blue-800 py-1 px-2 rounded text-xs">Paracetamol</span>
-                                    <span class="bg-purple-100 text-purple-800 py-1 px-2 rounded text-xs">Cough Syrup</span>
-                                </div>
-                            </td>
-                            <td class="py-4 px-4">
-                                <a href="{{ route('pharmacy.dispense-medications') }}" class="px-4 py-2 bg-pharma-primary text-white rounded-lg hover:bg-red-700 transition text-sm">
-                                    Dispense
-                                </a>
+                        @empty
+                        <tr>
+                            <td colspan="5" class="py-8 text-center text-gray-500">
+                                No pending prescriptions
                             </td>
                         </tr>
-                        
-                        <tr class="hover:bg-gray-50 transition">
-                            <td class="py-4 px-4">
-                                <span class="font-mono font-bold text-gray-800">RX0036</span>
-                            </td>
-                            <td class="py-4 px-4">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center mr-3">
-                                        <i class="fas fa-user text-pink-600 text-sm"></i>
-                                    </div>
-                                    <span>Marta Solomon</span>
-                                </div>
-                            </td>
-                            <td class="py-4 px-4">
-                                <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm font-medium">STU0224</span>
-                            </td>
-                            <td class="py-4 px-4">
-                                <div class="flex flex-wrap gap-1">
-                                    <span class="bg-yellow-100 text-yellow-800 py-1 px-2 rounded text-xs">Omeprazole</span>
-                                    <span class="bg-red-100 text-red-800 py-1 px-2 rounded text-xs">Antacid</span>
-                                </div>
-                            </td>
-                            <td class="py-4 px-4">
-                                <a href="{{ route('pharmacy.dispense-medications') }}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm">
-                                    Dispensed
-                                </a>
-                            </td>
-                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -202,6 +158,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @forelse($lowStockItems as $item)
                         <tr class="border-b hover:bg-gray-50 transition">
                             <td class="py-4 px-4">
                                 <div class="flex items-center">
@@ -209,59 +166,33 @@
                                         <i class="fas fa-pills text-red-600 text-sm"></i>
                                     </div>
                                     <div>
-                                        <div class="font-medium">Amoxicillin 250mg</div>
-                                        <div class="text-gray-600 text-xs">Capsule • Antibiotic</div>
+                                        <div class="font-medium">{{ $item->medication->name }}</div>
+                                        <div class="text-gray-600 text-xs">{{ $item->medication->strength }} • {{ $item->medication->dosage_form }}</div>
                                     </div>
                                 </div>
                             </td>
                             <td class="py-4 px-4">
                                 <div class="text-center">
-                                    <div class="text-2xl font-bold text-red-600">12</div>
-                                    <div class="text-gray-600 text-xs">Tablets</div>
+                                    <div class="text-2xl font-bold {{ $item->quantity <= 5 ? 'text-red-600' : 'text-yellow-600' }}">{{ $item->quantity }}</div>
+                                    <div class="text-gray-600 text-xs">Units</div>
                                 </div>
                             </td>
                             <td class="py-4 px-4">
+                                @if($item->expiry_date)
                                 <div class="text-sm">
-                                    <div class="font-medium">2025-07-10</div>
-                                    <div class="text-gray-600">In 45 days</div>
+                                    <div class="font-medium">{{ $item->expiry_date->format('Y-m-d') }}</div>
+                                    <div class="text-gray-600">{{ $item->expiry_date->diffForHumans() }}</div>
                                 </div>
+                                @else
+                                <div class="text-sm text-gray-500">N/A</div>
+                                @endif
                             </td>
                             <td class="py-4 px-4">
+                                @if($item->quantity <= 5)
                                 <span class="bg-red-100 text-red-800 py-1 px-3 rounded-full text-sm font-medium">Critical</span>
-                            </td>
-                            <td class="py-4 px-4">
-                                <a href="{{ route('pharmacy.inventory-management') }}" class="px-4 py-2 bg-pharma-primary text-white rounded-lg hover:bg-red-700 transition text-sm">
-                                    Order
-                                </a>
-                            </td>
-                        </tr>
-                        
-                        <tr class="border-b hover:bg-gray-50 transition">
-                            <td class="py-4 px-4">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
-                                        <i class="fas fa-pills text-yellow-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <div class="font-medium">Ibuprofen 400mg</div>
-                                        <div class="text-gray-600 text-xs">Tablet • Analgesic</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="py-4 px-4">
-                                <div class="text-center">
-                                    <div class="text-2xl font-bold text-yellow-600">5</div>
-                                    <div class="text-gray-600 text-xs">Tablets</div>
-                                </div>
-                            </td>
-                            <td class="py-4 px-4">
-                                <div class="text-sm">
-                                    <div class="font-medium">2025-06-25</div>
-                                    <div class="text-gray-600">In 30 days</div>
-                                </div>
-                            </td>
-                            <td class="py-4 px-4">
+                                @else
                                 <span class="bg-yellow-100 text-yellow-800 py-1 px-3 rounded-full text-sm font-medium">Low</span>
+                                @endif
                             </td>
                             <td class="py-4 px-4">
                                 <a href="{{ route('pharmacy.inventory-management') }}" class="px-4 py-2 bg-pharma-primary text-white rounded-lg hover:bg-red-700 transition text-sm">
@@ -269,40 +200,13 @@
                                 </a>
                             </td>
                         </tr>
-                        
-                        <tr class="hover:bg-gray-50 transition">
-                            <td class="py-4 px-4">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3">
-                                        <i class="fas fa-pills text-orange-600 text-sm"></i>
-                                    </div>
-                                    <div>
-                                        <div class="font-medium">Paracetamol 500mg</div>
-                                        <div class="text-gray-600 text-xs">Tablet • Analgesic</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="py-4 px-4">
-                                <div class="text-center">
-                                    <div class="text-2xl font-bold text-orange-600">8</div>
-                                    <div class="text-gray-600 text-xs">Tablets</div>
-                                </div>
-                            </td>
-                            <td class="py-4 px-4">
-                                <div class="text-sm">
-                                    <div class="font-medium">2025-08-15</div>
-                                    <div class="text-gray-600">In 91 days</div>
-                                </div>
-                            </td>
-                            <td class="py-4 px-4">
-                                <span class="bg-orange-100 text-orange-800 py-1 px-3 rounded-full text-sm font-medium">Warning</span>
-                            </td>
-                            <td class="py-4 px-4">
-                                <a href="{{ route('pharmacy.inventory-management') }}" class="px-4 py-2 bg-pharma-primary text-white rounded-lg hover:bg-red-700 transition text-sm">
-                                    Order
-                                </a>
+                        @empty
+                        <tr>
+                            <td colspan="5" class="py-8 text-center text-gray-500">
+                                No low stock items
                             </td>
                         </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -369,25 +273,25 @@
         <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div class="text-center p-4 bg-blue-50 rounded-lg">
-                    <div class="text-3xl font-bold text-blue-600">15</div>
+                    <div class="text-3xl font-bold text-blue-600">{{ $stats['today_dispensed'] }}</div>
                     <div class="text-gray-700 font-medium">Prescriptions</div>
                     <div class="text-gray-600 text-sm">Processed Today</div>
                 </div>
                 
                 <div class="text-center p-4 bg-green-50 rounded-lg">
-                    <div class="text-3xl font-bold text-green-600">42</div>
+                    <div class="text-3xl font-bold text-green-600">{{ $stats['medications_dispensed'] }}</div>
                     <div class="text-gray-700 font-medium">Medications</div>
                     <div class="text-gray-600 text-sm">Dispensed Today</div>
                 </div>
                 
                 <div class="text-center p-4 bg-red-50 rounded-lg">
-                    <div class="text-3xl font-bold text-red-600">5</div>
+                    <div class="text-3xl font-bold text-red-600">{{ $stats['out_of_stock'] }}</div>
                     <div class="text-gray-700 font-medium">Out of Stock</div>
                     <div class="text-gray-600 text-sm">Items to Order</div>
                 </div>
                 
                 <div class="text-center p-4 bg-yellow-50 rounded-lg">
-                    <div class="text-3xl font-bold text-yellow-600">3</div>
+                    <div class="text-3xl font-bold text-yellow-600">{{ $stats['expiring_soon'] }}</div>
                     <div class="text-gray-700 font-medium">Expiring Soon</div>
                     <div class="text-gray-600 text-sm">Within 30 days</div>
                 </div>

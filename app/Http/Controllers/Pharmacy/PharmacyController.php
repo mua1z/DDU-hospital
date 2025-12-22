@@ -27,6 +27,12 @@ class PharmacyController extends Controller
             'expiring_soon' => Inventory::where('location', 'pharmacy')
                 ->whereBetween('expiry_date', [now(), now()->addDays(30)])
                 ->count(),
+            'out_of_stock' => Inventory::where('location', 'pharmacy')
+                ->where('quantity', 0)
+                ->count(),
+            'medications_dispensed' => PrescriptionItem::where('status', 'dispensed')
+                ->whereDate('updated_at', $today)
+                ->count(),
         ];
 
         $recentPrescriptions = Prescription::with(['patient', 'prescribedBy', 'items.medication'])
