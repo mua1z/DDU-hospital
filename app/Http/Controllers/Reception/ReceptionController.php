@@ -111,7 +111,14 @@ class ReceptionController extends Controller
         $validated['status'] = 'scheduled';
         $validated['created_by'] = auth()->id();
 
-        Appointment::create($validated);
+        $appointment = Appointment::create($validated);
+
+        if ($appointment->doctor_id) {
+            $doctor = User::find($appointment->doctor_id);
+            if ($doctor) {
+                $doctor->notify(new \App\Notifications\NewAppointment($appointment));
+            }
+        }
 
         return redirect()->route('reception.schedule-appointments')
             ->with('success', 'Appointment scheduled successfully.');

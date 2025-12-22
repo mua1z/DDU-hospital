@@ -150,7 +150,12 @@ class DoctorController extends Controller
         $validated['requested_date'] = now()->toDateString();
         $validated['status'] = 'pending';
 
-        LabRequest::create($validated);
+        $labRequest = LabRequest::create($validated);
+
+        $labUsers = \App\Models\User::where('role', 'Laboratory')->get();
+        foreach ($labUsers as $user) {
+            $user->notify(new \App\Notifications\NewLabRequest($labRequest));
+        }
 
         return redirect()->route('doctor.request-lab-test')
             ->with('success', 'Lab test requested successfully.');
@@ -247,6 +252,12 @@ class DoctorController extends Controller
             }
             $prescription->notes .= $extraNotes;
             $prescription->save();
+            $prescription->save();
+        }
+
+        $pharmacists = \App\Models\User::where('role', 'Pharmacist')->get();
+        foreach ($pharmacists as $medUser) {
+            $medUser->notify(new \App\Notifications\NewPrescription($prescription));
         }
 
         return redirect()->route('doctor.write-prescription')

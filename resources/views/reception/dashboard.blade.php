@@ -61,46 +61,40 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @forelse($todayAppointments as $appointment)
                     <tr class="border-b hover:bg-gray-50 transition">
                         <td class="py-4 px-4">
-                            <div class="font-medium">08:30 AM</div>
+                            <div class="font-medium">{{ \Carbon\Carbon::parse($appointment->appointment_time)->format('h:i A') }}</div>
                         </td>
                         <td class="py-4 px-4">
                             <div class="flex items-center">
                                 <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
                                     <i class="fas fa-user text-blue-600 text-sm"></i>
                                 </div>
-                                <span>Salem Asfaw</span>
+                                <span>{{ $appointment->patient->full_name }}</span>
                             </div>
                         </td>
                         <td class="py-4 px-4">
-                            <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm font-medium">STU0150</span>
+                            <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm font-medium">{{ $appointment->patient->card_number }}</span>
                         </td>
-                        <td class="py-4 px-4">Dr. Ahmed Ali</td>
+                        <td class="py-4 px-4">Dr. {{ $appointment->doctor->name ?? 'Unassigned' }}</td>
                         <td class="py-4 px-4">
-                            <span class="bg-yellow-100 text-yellow-800 py-1 px-3 rounded-full text-sm font-medium">Scheduled</span>
+                            @if($appointment->status == 'completed')
+                                <span class="bg-green-100 text-green-800 py-1 px-3 rounded-full text-sm font-medium">Completed</span>
+                            @elseif($appointment->status == 'cancelled')
+                                <span class="bg-red-100 text-red-800 py-1 px-3 rounded-full text-sm font-medium">Cancelled</span>
+                            @else
+                                <span class="bg-yellow-100 text-yellow-800 py-1 px-3 rounded-full text-sm font-medium">{{ ucfirst($appointment->status) }}</span>
+                            @endif
                         </td>
                     </tr>
-                    <tr class="border-b hover:bg-gray-50 transition">
-                        <td class="py-4 px-4">
-                            <div class="font-medium">09:00 AM</div>
-                        </td>
-                        <td class="py-4 px-4">
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                                    <i class="fas fa-user text-blue-600 text-sm"></i>
-                                </div>
-                                <span>Mohammed Dawud</span>
-                            </div>
-                        </td>
-                        <td class="py-4 px-4">
-                            <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm font-medium">STU0187</span>
-                        </td>
-                        <td class="py-4 px-4">Dr. Hana Girma</td>
-                        <td class="py-4 px-4">
-                            <span class="bg-green-100 text-green-800 py-1 px-3 rounded-full text-sm font-medium">Confirmed</span>
+                    @empty
+                    <tr>
+                        <td colspan="5" class="py-8 text-center text-gray-500">
+                            No appointments for today
                         </td>
                     </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -126,36 +120,29 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @forelse($recentPatients as $patient)
                     <tr class="border-b hover:bg-gray-50 transition">
                         <td class="py-4 px-4">
                             <div class="flex items-center">
                                 <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
                                     <i class="fas fa-user text-blue-600 text-sm"></i>
                                 </div>
-                                <span>Kebede Abebe</span>
+                                <span>{{ $patient->full_name }}</span>
                             </div>
                         </td>
                         <td class="py-4 px-4">
-                            <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm font-medium">STU0225</span>
+                            <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm font-medium">{{ $patient->card_number }}</span>
                         </td>
-                        <td class="py-4 px-4">Today, 08:15 AM</td>
-                        <td class="py-4 px-4">+251 91 234 5678</td>
+                        <td class="py-4 px-4">{{ $patient->created_at->format('M d, Y h:i A') }}</td>
+                        <td class="py-4 px-4">{{ $patient->phone ?? 'N/A' }}</td>
                     </tr>
-                    <tr class="border-b hover:bg-gray-50 transition">
-                        <td class="py-4 px-4">
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                                    <i class="fas fa-user text-blue-600 text-sm"></i>
-                                </div>
-                                <span>Marta Solomon</span>
-                            </div>
+                    @empty
+                    <tr>
+                        <td colspan="4" class="py-8 text-center text-gray-500">
+                            No recent registrations
                         </td>
-                        <td class="py-4 px-4">
-                            <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm font-medium">STU0224</span>
-                        </td>
-                        <td class="py-4 px-4">Yesterday, 03:45 PM</td>
-                        <td class="py-4 px-4">+251 92 345 6789</td>
                     </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>

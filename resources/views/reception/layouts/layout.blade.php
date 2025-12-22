@@ -131,7 +131,7 @@
                         const linkPath = new URL(href, window.location.origin).pathname;
                         // Check if current path matches or starts with the link path
                         if (currentPath === linkPath || currentPath.startsWith(linkPath + '/')) {
-                            link.classList.add('bg-blue-800', 'bg-opacity-50');
+                            link.classList.add('bg-purple-800', 'bg-opacity-50');
                         }
                     }
                 }

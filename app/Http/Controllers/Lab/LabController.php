@@ -121,6 +121,10 @@ class LabController extends Controller
 
         $labRequest->update(['status' => 'completed']);
 
+        if ($labRequest->requestedBy) {
+            $labRequest->requestedBy->notify(new \App\Notifications\LabResultUploaded($labResult));
+        }
+
         return redirect()->route('lab.upload-results')
             ->with('success', 'Lab results uploaded successfully.');
     }
