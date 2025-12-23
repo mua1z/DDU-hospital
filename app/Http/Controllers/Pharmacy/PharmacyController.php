@@ -67,6 +67,14 @@ class PharmacyController extends Controller
         return view('pharmacy.view-prescriptions', compact('prescriptions', 'counts'));
     }
 
+    public function viewPrescriptionDetails($id)
+    {
+        $prescription = Prescription::with(['patient', 'prescribedBy', 'items.medication'])
+            ->findOrFail($id);
+            
+        return view('pharmacy.view-prescription-details', compact('prescription'));
+    }
+
     public function dispenseMedications()
     {
         $prescriptions = Prescription::with(['patient', 'prescribedBy', 'items.medication'])

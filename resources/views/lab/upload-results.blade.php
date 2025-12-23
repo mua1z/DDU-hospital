@@ -125,8 +125,15 @@
             <!-- Results -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-gray-700 text-sm font-medium mb-2">Results (summary)</label>
-                    <textarea name="results" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lab-primary" rows="4" placeholder="Key findings and quantitative values">{{ old('results') }}</textarea>
+                    <label class="block text-gray-700 text-sm font-medium mb-2">Test Outcome</label>
+                    <select name="results" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lab-primary">
+                        <option value="">Select Outcome</option>
+                        <option value="Positive" @selected(old('results') === 'Positive')>Positive</option>
+                        <option value="Negative" @selected(old('results') === 'Negative')>Negative</option>
+                        <option value="Indeterminate" @selected(old('results') === 'Indeterminate')>Indeterminate</option>
+                    </select>
+                    <!-- Hidden input for "Other" if needed in future, staying simple for now as requested -->
+
                 </div>
 
                 <div>

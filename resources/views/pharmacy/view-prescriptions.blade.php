@@ -126,6 +126,9 @@
                         </td>
                         <td class="py-4 px-6">
                             <div class="flex space-x-2">
+                                <a href="{{ route('pharmacy.view-prescription-details', $prescription->id) }}" class="p-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
                                 @if(in_array($prescription->status, ['pending','partially_dispensed']))
                                 <a href="{{ route('pharmacy.show-dispense-form', $prescription->id) }}" class="px-4 py-2 bg-pharma-primary text-white rounded-lg hover:bg-red-700 transition text-sm">
                                     Dispense
@@ -135,9 +138,6 @@
                                     <i class="fas fa-check mr-1"></i> Done
                                 </button>
                                 @endif
-                                <button class="p-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                                    <i class="fas fa-ellipsis-v"></i>
-                                </button>
                             </div>
                         </td>
                     </tr>

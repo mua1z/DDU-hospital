@@ -67,6 +67,7 @@ Route::middleware(['auth'])->prefix('doctor')->name('doctor.')->group(function (
     Route::get('/request-lab-test', [DoctorController::class, 'requestLabTest'])->name('request-lab-test');
     Route::post('/request-lab-test', [DoctorController::class, 'storeLabRequest'])->name('store-lab-request');
     Route::get('/view-lab-results', [DoctorController::class, 'viewLabResults'])->name('view-lab-results');
+    Route::get('/view-lab-results/{id}', [DoctorController::class, 'viewResultDetails'])->name('view-result-details');
     Route::get('/write-prescription', [DoctorController::class, 'writePrescription'])->name('write-prescription');
     Route::post('/write-prescription', [DoctorController::class, 'storePrescription'])->name('store-prescription');
     Route::get('/document-history', [DoctorController::class, 'documentHistory'])->name('document-history');
@@ -78,6 +79,7 @@ use App\Http\Controllers\Lab\LabController;
 Route::middleware(['auth'])->prefix('lab')->name('lab.')->group(function () {
     Route::get('/dashboard', [LabController::class, 'dashboard'])->name('dashboard');
     Route::get('/pending-requests', [LabController::class, 'pendingRequests'])->name('pending-requests');
+    Route::get('/view-request/{id}', [LabController::class, 'viewRequestDetails'])->name('view-request-details');
     Route::get('/process-test', function() { return redirect()->route('lab.pending-requests'); })->name('process-test');
     Route::get('/process-test/{id}', [LabController::class, 'processTest'])->name('process-test-id');
     Route::post('/process-test/{id}', [LabController::class, 'updateRequestStatus'])->name('update-request-status');
@@ -94,6 +96,7 @@ use App\Http\Controllers\Pharmacy\PharmacyController;
 Route::middleware(['auth'])->prefix('pharmacy')->name('pharmacy.')->group(function () {
     Route::get('/dashboard', [PharmacyController::class, 'dashboard'])->name('dashboard');
     Route::get('/view-prescriptions', [PharmacyController::class, 'viewPrescriptions'])->name('view-prescriptions');
+    Route::get('/view-prescription/{id}', [PharmacyController::class, 'viewPrescriptionDetails'])->name('view-prescription-details');
     Route::get('/dispense-medications', [PharmacyController::class, 'dispenseMedications'])->name('dispense-medications');
     Route::get('/dispense-medications/{id}', [PharmacyController::class, 'showDispenseForm'])->name('show-dispense-form');
     Route::post('/dispense-medications/{id}', [PharmacyController::class, 'updateDispenseStatus'])->name('update-dispense-status');

@@ -79,6 +79,7 @@ class DoctorController extends Controller
             ->get()
             ->map(function ($appointment) {
                 return [
+                    'id' => $appointment->id,
                     'patient' => $appointment->patient->full_name,
                     'cardNo' => $appointment->patient->card_number,
                     'age' => \Carbon\Carbon::parse($appointment->patient->date_of_birth)->age,
@@ -110,7 +111,36 @@ class DoctorController extends Controller
                 ];
             });
 
-        return view('doctor.view-appointments', compact('appointments', 'tomorrowAppointments'));
+        // Weekly Statistics
+        $startOfWeek = now()->startOfWeek();
+        $endOfWeek = now()->endOfWeek();
+
+        $weeklyAppointments = Appointment::where('doctor_id', $doctorId)
+            ->whereBetween('appointment_date', [$startOfWeek, $endOfWeek])
+            ->get();
+
+        $totalWeekly = $weeklyAppointments->count();
+        
+        $weeklyStats = [
+            'completed' => [
+                'count' => $weeklyAppointments->where('status', 'completed')->count(),
+                'percent' => $totalWeekly > 0 ? round(($weeklyAppointments->where('status', 'completed')->count() / $totalWeekly) * 100) : 0,
+            ],
+            'pending' => [
+                'count' => $weeklyAppointments->whereIn('status', ['scheduled', 'in_progress'])->count(),
+                'percent' => $totalWeekly > 0 ? round(($weeklyAppointments->whereIn('status', ['scheduled', 'in_progress'])->count() / $totalWeekly) * 100) : 0,
+            ],
+            'cancelled' => [
+                'count' => $weeklyAppointments->where('status', 'cancelled')->count(),
+                'percent' => $totalWeekly > 0 ? round(($weeklyAppointments->where('status', 'cancelled')->count() / $totalWeekly) * 100) : 0,
+            ],
+            'no_show' => [
+                'count' => $weeklyAppointments->where('status', 'no_show')->count(),
+                'percent' => $totalWeekly > 0 ? round(($weeklyAppointments->where('status', 'no_show')->count() / $totalWeekly) * 100) : 0,
+            ],
+        ];
+
+        return view('doctor.view-appointments', compact('appointments', 'tomorrowAppointments', 'weeklyStats'));
     }
 
     public function requestLabTest()
@@ -275,7 +305,71 @@ class DoctorController extends Controller
             ->orderBy('test_date', 'desc')
             ->paginate(20);
 
-        return view('doctor.view-lab-results', compact('labResults'));
+        // Lab Statistics
+        $today = now()->toDateString();
+        
+        // Tests Requested Today
+        $testsToday = LabRequest::where('requested_by', $doctorId)
+            ->whereDate('created_at', $today)
+            ->count();
+            
+        // Total active requests (for percentage calc)
+        $totalActive = LabRequest::where('requested_by', $doctorId)->count();
+        
+        // Pending Reviews (Pending Lab Requests)
+        $pendingCount = LabRequest::where('requested_by', $doctorId)
+            ->where('status', 'pending')
+            ->count();
+            
+        // Completed Today (Results uploaded today)
+        // We need to check LabResult where related request is by this doctor
+        $completedToday = LabResult::whereHas('labRequest', function ($q) use ($doctorId) {
+            $q->where('requested_by', $doctorId);
+        })->whereDate('created_at', $today)->count();
+        
+        // Abnormal Results (Critical status)
+        $abnormalCount = LabResult::whereHas('labRequest', function ($q) use ($doctorId) {
+            $q->where('requested_by', $doctorId);
+        })->where('status', 'critical')->count();
+        
+        // Total Results (for percentage)
+        $totalResults = LabResult::whereHas('labRequest', function ($q) use ($doctorId) {
+            $q->where('requested_by', $doctorId);
+        })->count();
+
+        $labStats = [
+            'tests_today' => [
+                'count' => $testsToday,
+                'percent' => $totalActive > 0 ? round(($testsToday / $totalActive) * 100) : 0,
+            ],
+            'abnormal' => [
+                'count' => $abnormalCount,
+                'percent' => $totalResults > 0 ? round(($abnormalCount / $totalResults) * 100) : 0,
+            ],
+            'pending' => [
+                'count' => $pendingCount,
+                'percent' => $totalActive > 0 ? round(($pendingCount / $totalActive) * 100) : 0,
+            ],
+            'completed_today' => [
+                'count' => $completedToday,
+                'percent' => $totalActive > 0 ? round(($completedToday / $totalActive) * 100) : 0,
+            ],
+        ];
+
+        return view('doctor.view-lab-results', compact('labResults', 'labStats'));
+    }
+
+    public function viewResultDetails($id)
+    {
+        $doctorId = auth()->id();
+        
+        $result = LabResult::with(['patient', 'labRequest.requestedBy', 'processedBy'])
+            ->whereHas('labRequest', function ($query) use ($doctorId) {
+                $query->where('requested_by', $doctorId);
+            })
+            ->findOrFail($id);
+
+        return view('doctor.view-result-details', compact('result'));
     }
 
 

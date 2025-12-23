@@ -301,9 +301,14 @@
                                 <span class="bg-yellow-100 text-yellow-800 py-1 px-3 rounded-full text-sm font-medium">{{ ucfirst(str_replace('_', ' ', $prescription->status)) }}</span>
                             </td>
                             <td class="py-4 px-4">
-                                <a href="{{ route('pharmacy.show-dispense-form', $prescription->id) }}" class="px-4 py-2 bg-pharma-primary text-white rounded-lg hover:bg-red-700 transition text-sm">
-                                    Dispense
-                                </a>
+                                <div class="flex space-x-2">
+                                    <a href="{{ route('pharmacy.view-prescription-details', $prescription->id) }}" class="p-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ route('pharmacy.show-dispense-form', $prescription->id) }}" class="px-4 py-2 bg-pharma-primary text-white rounded-lg hover:bg-red-700 transition text-sm">
+                                        Dispense
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         @endforeach

@@ -1,0 +1,226 @@
+@extends('doctor.layouts.layout')
+
+@section('title', 'Test Result Details - DDU Clinics')
+@section('page-title', 'Test Result Details')
+@section('page-subtitle', 'Comprehensive view of laboratory test results')
+
+@section('content')
+<div class="animate-slide-up">
+    <!-- Action Buttons -->
+    <div class="mb-6 flex justify-between items-center">
+        <a href="{{ route('doctor.view-lab-results') }}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center space-x-2">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Results</span>
+        </a>
+        <div class="flex space-x-3">
+            @if($result->result_file)
+            <a href="{{ Storage::url($result->result_file) }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center space-x-2">
+                <i class="fas fa-file-download"></i>
+                <span>Download File</span>
+            </a>
+            @endif
+            <button onclick="window.print()" class="px-4 py-2 bg-ddu-primary text-white rounded-lg hover:bg-blue-800 transition flex items-center space-x-2">
+                <i class="fas fa-print"></i>
+                <span>Print</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Patient & Test Information -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <!-- Patient Info Card -->
+        <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-user-circle text-ddu-primary mr-2"></i>
+                Patient Information
+            </h3>
+            <div class="space-y-3">
+                <div>
+                    <div class="text-xs text-gray-500 uppercase">Full Name</div>
+                    <div class="font-semibold text-gray-800">{{ $result->patient->full_name }}</div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500 uppercase">Card Number</div>
+                    <div class="font-medium text-gray-700">{{ $result->patient->card_number }}</div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500 uppercase">Age / Gender</div>
+                    <div class="font-medium text-gray-700">
+                        {{ $result->patient->age ?? 'N/A' }} / {{ ucfirst($result->patient->gender ?? 'N/A') }}
+                    </div>
+                </div>
+                @if($result->patient->phone)
+                <div>
+                    <div class="text-xs text-gray-500 uppercase">Phone</div>
+                    <div class="font-medium text-gray-700">{{ $result->patient->phone }}</div>
+                </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Test Request Info -->
+        <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-flask text-blue-600 mr-2"></i>
+                Test Request
+            </h3>
+            <div class="space-y-3">
+                <div>
+                    <div class="text-xs text-gray-500 uppercase">Request Number</div>
+                    <div class="font-mono font-semibold text-gray-800">{{ $result->labRequest->request_number }}</div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500 uppercase">Test Type</div>
+                    <div class="font-medium text-gray-700">{{ $result->labRequest->test_type }}</div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500 uppercase">Requested By</div>
+                    <div class="font-medium text-gray-700">
+                        {{ $result->labRequest->requestedBy->name ?? 'N/A' }}
+                    </div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500 uppercase">Request Date</div>
+                    <div class="font-medium text-gray-700">
+                        {{ $result->labRequest->requested_date ? \Carbon\Carbon::parse($result->labRequest->requested_date)->format('M d, Y') : 'N/A' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Info -->
+        <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-clipboard-check text-green-600 mr-2"></i>
+                Result Information
+            </h3>
+            <div class="space-y-3">
+                <div>
+                    <div class="text-xs text-gray-500 uppercase">Test Date</div>
+                    <div class="font-medium text-gray-700">
+                        {{ $result->test_date ? \Carbon\Carbon::parse($result->test_date)->format('M d, Y') : 'N/A' }}
+                    </div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500 uppercase">Result Date</div>
+                    <div class="font-medium text-gray-700">
+                        {{ $result->result_date ? \Carbon\Carbon::parse($result->result_date)->format('M d, Y') : 'N/A' }}
+                    </div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500 uppercase">Processed By</div>
+                    <div class="font-medium text-gray-700">
+                        {{ $result->processedBy->name ?? 'N/A' }}
+                    </div>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-500 uppercase">Status</div>
+                    @php
+                        $statusColors = [
+                            'pending' => 'bg-yellow-100 text-yellow-800',
+                            'completed' => 'bg-green-100 text-green-800',
+                            'critical' => 'bg-red-100 text-red-800',
+                        ];
+                        $statusColor = $statusColors[$result->status] ?? 'bg-gray-100 text-gray-800';
+                    @endphp
+                    <span class="{{ $statusColor }} py-1 px-3 rounded-full text-sm font-medium inline-block">
+                        {{ ucfirst($result->status) }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Results Section -->
+    <div class="bg-white rounded-xl shadow p-6 mb-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-chart-line text-purple-600 mr-2"></i>
+            Test Results
+        </h3>
+
+        @if($result->results)
+        <div class="mb-6">
+            <h4 class="text-sm font-semibold text-gray-700 mb-2">Summary</h4>
+            <div class="bg-gray-50 rounded-lg p-4 text-gray-800 whitespace-pre-wrap">{{ $result->results }}</div>
+        </div>
+        @endif
+
+        @if($result->test_values && is_array($result->test_values) && count($result->test_values) > 0)
+        <div class="mb-6">
+            <h4 class="text-sm font-semibold text-gray-700 mb-3">Test Values</h4>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="py-2 px-4 text-left text-gray-700 font-semibold">Parameter</th>
+                            <th class="py-2 px-4 text-left text-gray-700 font-semibold">Value</th>
+                            <th class="py-2 px-4 text-left text-gray-700 font-semibold">Unit</th>
+                            <th class="py-2 px-4 text-left text-gray-700 font-semibold">Reference Range</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($result->test_values as $value)
+                        <tr class="border-b">
+                            <td class="py-3 px-4 font-medium">{{ $value['name'] ?? 'N/A' }}</td>
+                            <td class="py-3 px-4">{{ $value['value'] ?? 'N/A' }}</td>
+                            <td class="py-3 px-4 text-gray-600">{{ $value['unit'] ?? '' }}</td>
+                            <td class="py-3 px-4 text-gray-600">{{ $value['reference'] ?? 'N/A' }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        @endif
+
+        @if($result->findings)
+        <div class="mb-6">
+            <h4 class="text-sm font-semibold text-gray-700 mb-2">Findings</h4>
+            <div class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4 text-gray-800 whitespace-pre-wrap">{{ $result->findings }}</div>
+        </div>
+        @endif
+
+        @if($result->recommendations)
+        <div>
+            <h4 class="text-sm font-semibold text-gray-700 mb-2">Recommendations</h4>
+            <div class="bg-green-50 border-l-4 border-green-500 rounded-lg p-4 text-gray-800 whitespace-pre-wrap">{{ $result->recommendations }}</div>
+        </div>
+        @endif
+    </div>
+
+    <!-- Attached File -->
+    @if($result->result_file)
+    <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-paperclip text-gray-600 mr-2"></i>
+            Attached File
+        </h3>
+        <div class="flex items-center justify-between bg-gray-50 rounded-lg p-4">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                    <i class="fas fa-file-pdf text-blue-600 text-xl"></i>
+                </div>
+                <div>
+                    <div class="font-semibold text-gray-800">{{ basename($result->result_file) }}</div>
+                    <div class="text-sm text-gray-500">Laboratory result document</div>
+                </div>
+            </div>
+            <a href="{{ Storage::url($result->result_file) }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center space-x-2">
+                <i class="fas fa-external-link-alt"></i>
+                <span>Open</span>
+            </a>
+        </div>
+    </div>
+    @endif
+</div>
+
+@push('styles')
+<style>
+@media print {
+    .no-print {
+        display: none !important;
+    }
+}
+</style>
+@endpush
+@endsection

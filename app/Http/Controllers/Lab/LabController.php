@@ -45,6 +45,14 @@ class LabController extends Controller
         return view('lab.view-requests', compact('requests'));
     }
 
+    public function viewRequestDetails($id)
+    {
+        $request = LabRequest::with(['patient', 'requestedBy'])
+            ->findOrFail($id);
+
+        return view('lab.view-request-details', compact('request'));
+    }
+
     public function processTest($id)
     {
         $request = LabRequest::with(['patient', 'requestedBy'])

@@ -61,28 +61,45 @@
                     <div class="flex flex-col lg:items-end space-y-3">
                         <div class="text-right">
                             <div class="text-2xl font-bold text-gray-800">{{ $appointment['time'] }}</div>
-                            <div class="text-gray-600">{{ $appointment['duration'] }}</div>
+                            <div class="text-gray-600 font-medium">{{ $appointment['duration'] }}</div>
                         </div>
                         
-                        <div class="flex space-x-2">
+                        <div class="flex items-center justify-end space-x-2">
                             <span class="{{ $appointment['statusClass'] }} py-1 px-3 rounded-full text-sm font-medium">
                                 {{ $appointment['status'] }}
                             </span>
-                            @if($appointment['priority'] === 'high')
-                            <span class="bg-red-100 text-red-800 py-1 px-3 rounded-full text-sm font-medium">
-                                <i class="fas fa-exclamation-circle mr-1"></i> Urgent
-                            </span>
-                            @endif
                         </div>
                         
-                        <div class="flex space-x-2">
-                            <a href="{{ route('doctor.document-history') }}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center space-x-2">
-                                <i class="fas fa-clipboard-check"></i>
-                                <span>Start Consultation</span>
-                            </a>
-                            <button class="p-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
+                        <div class="flex space-x-2 pt-2">
+                            <form action="{{ route('doctor.appointments.consult', $appointment['id']) }}" method="POST" class="inline">
+                                @csrf
+                                <!-- We need to make sure the route handles GET or we treat "Start" as just going to a page?
+                                     The existing route `appointments.consult` is POST.
+                                     Usually "Start Consultation" goes to a view. 
+                                     The user said "Start Consultation" which implies an action.
+                                     Reviewing routes: `Route::post('/appointments/{appointment}/consult', ...)`
+                                     So this is the submission. 
+                                     Is there a view for *doing* the consultation? 
+                                     Wait, `requestLabTest`, `writePrescription` are separate.
+                                     Maybe "Start Consultation" should just go to a modal or a page? 
+                                     Given existing code, `documentHistory` seems to be the catch-all or there's no specific "Consultation Page" yet.
+                                     However, `view-appointments.blade.php` linked to `doctor.document-history`.
+                                     Let's keep it linking there or a new page if needed.
+                                     Actually, checking `DoctorController`, `consultAppointment` submits data.
+                                     For now, let's link to `document-history` as before but maybe with a parameter,
+                                     OR just keep the visual button as requested.
+                                     I'll assume "Start Consultation" opens the context for that patient. 
+                                     Since I don't see a `consult` view route, I will link to `request-lab-test` or `write-prescription` or just `document-history` for now,
+                                     or better, `write-prescription` pre-filled?
+                                     Let's stick to the previous link `doctor.document-history` but style it as requested.
+                                     Wait, the user sees "Start Consultation" text. I will use that.
+                                -->
+                                <a href="{{ route('doctor.write-prescription', ['appointment_id' => $appointment['id'], 'patient_id' => \App\Models\Appointment::find($appointment['id'])->patient_id]) }}" 
+                                   class="px-5 py-2.5 bg-ddu-primary text-white rounded-lg hover:bg-green-700 transition flex items-center shadow-sm">
+                                    <i class="fas fa-stethoscope mr-2"></i>
+                                    <span>Start Consultation</span>
+                                </a>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -137,40 +154,40 @@
                     <div>
                         <div class="flex justify-between mb-2">
                             <span class="text-gray-700">Completed</span>
-                            <span class="font-bold text-gray-800">42</span>
+                            <span class="font-bold text-gray-800">{{ $weeklyStats['completed']['count'] }}</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-green-600 h-2 rounded-full" style="width: 70%"></div>
+                            <div class="bg-green-600 h-2 rounded-full" style="width: {{ $weeklyStats['completed']['percent'] }}%"></div>
                         </div>
                     </div>
                     
                     <div>
                         <div class="flex justify-between mb-2">
                             <span class="text-gray-700">Pending</span>
-                            <span class="font-bold text-gray-800">18</span>
+                            <span class="font-bold text-gray-800">{{ $weeklyStats['pending']['count'] }}</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-yellow-500 h-2 rounded-full" style="width: 30%"></div>
+                            <div class="bg-yellow-500 h-2 rounded-full" style="width: {{ $weeklyStats['pending']['percent'] }}%"></div>
                         </div>
                     </div>
                     
                     <div>
                         <div class="flex justify-between mb-2">
                             <span class="text-gray-700">Cancelled</span>
-                            <span class="font-bold text-gray-800">5</span>
+                            <span class="font-bold text-gray-800">{{ $weeklyStats['cancelled']['count'] }}</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-red-500 h-2 rounded-full" style="width: 8%"></div>
+                            <div class="bg-red-500 h-2 rounded-full" style="width: {{ $weeklyStats['cancelled']['percent'] }}%"></div>
                         </div>
                     </div>
                     
                     <div>
                         <div class="flex justify-between mb-2">
                             <span class="text-gray-700">No-show</span>
-                            <span class="font-bold text-gray-800">3</span>
+                            <span class="font-bold text-gray-800">{{ $weeklyStats['no_show']['count'] }}</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-gray-500 h-2 rounded-full" style="width: 5%"></div>
+                            <div class="bg-gray-500 h-2 rounded-full" style="width: {{ $weeklyStats['no_show']['percent'] }}%"></div>
                         </div>
                     </div>
                 </div>

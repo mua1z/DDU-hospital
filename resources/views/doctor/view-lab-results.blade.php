@@ -69,37 +69,22 @@
                                             </div>
                                         @endif
                                     </td>
-
-                                    @php
-                                        $rawResult = strtolower(trim((string) ($result->results ?? '')));
-                                        $simpleResult = $rawResult === 'positive' ? 'positive'
-                                            : ($rawResult === 'negative' ? 'negative' : null);
-                                        $resultClass = match($simpleResult) {
-                                            'positive' => 'bg-red-100 text-red-800',
-                                            'negative' => 'bg-green-100 text-green-800',
-                                            default => 'bg-gray-100 text-gray-700',
-                                        };
-                                        $label = $simpleResult ? ucfirst($simpleResult) : 'Null';
-                                    @endphp
+                                    
                                     <td class="px-4 py-3 align-top">
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {{ $resultClass }}">
-                                            {{ $label }}
-                                        </span>
-                                    </td>
-
-                                    <td class="px-4 py-3 align-top">
-                                        <div class="font-medium text-gray-800">
+                                        <div class="font-bold text-gray-800">
                                             {{ optional($result->labRequest)->test_type ?? 'N/A' }}
                                         </div>
-                                        <div class="text-xs text-gray-500">
+                                        <div class="text-xs font-mono text-gray-500 mt-1">
                                             {{ optional($result->labRequest)->request_number }}
                                         </div>
                                     </td>
 
-                                    <td class="px-4 py-3 align-top text-sm text-gray-700">
-                                        {{ optional($result->test_date)->format('M d, Y') }}
+                                    <td class="px-4 py-3 align-top text-sm">
+                                        <div class="text-gray-900">
+                                            {{ optional($result->test_date)->format('M d, Y') }}
+                                        </div>
                                         @if($result->result_date)
-                                            <div class="text-xs text-gray-500">
+                                            <div class="text-xs text-gray-500 mt-1">
                                                 Result: {{ $result->result_date->format('M d, Y') }}
                                             </div>
                                         @endif
@@ -108,13 +93,8 @@
                                     <td class="px-4 py-3 align-top text-sm text-gray-700">
                                         @if($result->processedBy)
                                             {{ $result->processedBy->name }}
-                                            @if($result->is_verified && $result->verifiedBy)
-                                                <div class="text-xs text-green-600">
-                                                    Verified by {{ $result->verifiedBy->name }}
-                                                </div>
-                                            @endif
                                         @else
-                                            <span class="text-xs text-gray-400">Not assigned</span>
+                                            <span class="text-xs text-gray-400">--</span>
                                         @endif
                                     </td>
 
@@ -129,11 +109,23 @@
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {{ $statusClass }}">
                                             {{ ucfirst($result->status) }}
                                         </span>
-                                        @if($result->is_verified)
-                                            <div class="mt-1 text-[11px] text-green-600">
-                                                Verified {{ optional($result->verified_at)->format('M d, Y H:i') }}
-                                            </div>
-                                        @endif
+                                    </td>
+
+                                    @php
+                                        $rawResult = strtolower(trim((string) ($result->results ?? '')));
+                                        $simpleResult = $rawResult === 'positive' ? 'positive'
+                                            : ($rawResult === 'negative' ? 'negative' : null);
+                                        $resultClass = match($simpleResult) {
+                                            'positive' => 'bg-red-100 text-red-800',
+                                            'negative' => 'bg-green-100 text-green-800',
+                                            default => 'bg-gray-100 text-gray-700',
+                                        };
+                                        $label = $simpleResult ? ucfirst($simpleResult) : ($result->results ?? 'Null');
+                                    @endphp
+                                    <td class="px-4 py-3 align-top">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {{ $resultClass }}">
+                                            {{ $label }}
+                                        </span>
                                     </td>
 
                                     <td class="px-4 py-3 align-top text-right">
@@ -141,19 +133,18 @@
                                             @if($result->result_file)
                                                 <a href="{{ asset('storage/'.$result->result_file) }}"
                                                    target="_blank"
-                                                   class="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center space-x-1 text-xs">
+                                                   class="text-blue-600 hover:text-blue-800 transition" title="View PDF">
                                                     <i class="fas fa-file-pdf"></i>
-                                                    <span>View PDF</span>
                                                 </a>
-                                            @else
-                                                <span class="px-3 py-1.5 bg-gray-100 text-gray-400 rounded-lg text-xs cursor-not-allowed flex items-center space-x-1">
-                                                    <i class="fas fa-file"></i>
-                                                    <span>No file</span>
-                                                </span>
                                             @endif
+                                            
+                                            <a href="{{ route('doctor.view-result-details', $result->id) }}"
+                                                class="text-ddu-primary hover:text-blue-800 transition flex items-center" title="View Details">
+                                                 <i class="fas fa-eye"></i>
+                                             </a>
 
                                             <a href="{{ route('doctor.write-prescription', ['patient_id' => $result->patient_id]) }}"
-                                               class="px-3 py-1.5 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition text-xs flex items-center">
+                                               class="text-green-600 hover:text-green-800 transition" title="Write Prescription">
                                                 <i class="fas fa-prescription"></i>
                                             </a>
                                         </div>
@@ -161,7 +152,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-4 py-6 text-center text-gray-500 text-sm">
+                                    <td colspan="7" class="px-4 py-6 text-center text-gray-500 text-sm">
                                         No lab results found.
                                     </td>
                                 </tr>
@@ -188,40 +179,40 @@
                     <div>
                         <div class="flex justify-between mb-2">
                             <span class="text-gray-700">Tests Today</span>
-                            <span class="font-bold text-gray-800">8</span>
+                            <span class="font-bold text-gray-800">{{ $labStats['tests_today']['count'] }}</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-blue-600 h-2 rounded-full" style="width: 40%"></div>
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: {{ $labStats['tests_today']['percent'] }}%"></div>
                         </div>
                     </div>
                     
                     <div>
                         <div class="flex justify-between mb-2">
                             <span class="text-gray-700">Abnormal Results</span>
-                            <span class="font-bold text-red-600">3</span>
+                            <span class="font-bold text-red-600">{{ $labStats['abnormal']['count'] }}</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-red-500 h-2 rounded-full" style="width: 20%"></div>
+                            <div class="bg-red-500 h-2 rounded-full" style="width: {{ $labStats['abnormal']['percent'] }}%"></div>
                         </div>
                     </div>
                     
                     <div>
                         <div class="flex justify-between mb-2">
                             <span class="text-gray-700">Pending Review</span>
-                            <span class="font-bold text-yellow-600">5</span>
+                            <span class="font-bold text-yellow-600">{{ $labStats['pending']['count'] }}</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-yellow-500 h-2 rounded-full" style="width: 25%"></div>
+                            <div class="bg-yellow-500 h-2 rounded-full" style="width: {{ $labStats['pending']['percent'] }}%"></div>
                         </div>
                     </div>
                     
                     <div>
                         <div class="flex justify-between mb-2">
                             <span class="text-gray-700">Completed Today</span>
-                            <span class="font-bold text-green-600">12</span>
+                            <span class="font-bold text-green-600">{{ $labStats['completed_today']['count'] }}</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-green-600 h-2 rounded-full" style="width: 60%"></div>
+                            <div class="bg-green-600 h-2 rounded-full" style="width: {{ $labStats['completed_today']['percent'] }}%"></div>
                         </div>
                     </div>
                 </div>
