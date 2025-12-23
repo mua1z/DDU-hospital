@@ -6,8 +6,8 @@
                 <i class="fas fa-clinic-medical text-purple-600 text-xl"></i>
             </div>
             <div>
-                <h1 class="text-xl font-bold">DDU Clinics</h1>
-                <p class="text-purple-200 text-xs">Clinic Management System</p>
+                <h1 class="text-xl font-bold">{{ __('DDU Clinics') }}</h1>
+                <p class="text-purple-200 text-xs">{{ __('Clinic Management System') }}</p>
             </div>
         </div>
     </div>
@@ -20,7 +20,7 @@
             </div>
             <div>
                 <h2 class="font-semibold">{{ auth()->user()->name }}</h2>
-                <p class="text-purple-200 text-sm">DDU Main Campus</p>
+                <p class="text-purple-200 text-sm">{{ __('DDU Main Campus') }}</p>
                 <p class="text-purple-300 text-xs">ID: {{ auth()->user()->dduc_id }}</p>
             </div>
         </div>
@@ -32,37 +32,37 @@
             <li class="nav-item">
                 <a href="{{ route('reception.dashboard') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
+                    <span>{{ __('Dashboard') }}</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('reception.register-patient') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-user-plus"></i>
-                    <span>Register Patient</span>
+                    <span>{{ __('Register Patient') }}</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('reception.search-patients') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-search"></i>
-                    <span>Search Patients</span>
+                    <span>{{ __('Search Patients') }}</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('reception.search-patients') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-user-circle"></i>
-                    <span>View Patient Info</span>
+                    <span>{{ __('View Patient Info') }}</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('reception.schedule-appointments') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-calendar-alt"></i>
-                    <span>Schedule Appointments</span>
+                    <span>{{ __('Schedule Appointments') }}</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('reception.manage-walkin') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-walking"></i>
-                    <span>Manage Walk-In</span>
+                    <span>{{ __('Manage Walk-In') }}</span>
                 </a>
             </li>
         </ul>
@@ -74,7 +74,7 @@
             @csrf
             <button type="submit" class="w-full flex items-center space-x-3 p-3 rounded-lg bg-green-600 hover:bg-green-700 transition text-left text-white shadow-md">
                 <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
+                <span>{{ __('Logout') }}</span>
             </button>
         </form>
     </div>

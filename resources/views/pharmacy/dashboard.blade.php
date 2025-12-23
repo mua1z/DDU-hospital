@@ -1,8 +1,8 @@
 @extends('pharmacy.layouts.layout')
 
 @section('title', 'Pharmacy Dashboard - DDU Clinics')
-@section('page-title', 'Welcome, Pharmacist')
-@section('page-subtitle', 'Pharmacy Dashboard')
+@section('page-title', __('Welcome, Pharmacist'))
+@section('page-subtitle', __('Pharmacy Dashboard'))
 
 @section('content')
 <!-- Quick Stats -->
@@ -10,7 +10,7 @@
     <div class="dashboard-card bg-white rounded-xl shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-600 text-sm">Pending Prescriptions</p>
+                <p class="text-gray-600 text-sm">{{ __('Pending Prescriptions') }}</p>
                 <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['pending_prescriptions'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
@@ -25,7 +25,7 @@
     <div class="dashboard-card bg-white rounded-xl shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-600 text-sm">Today's Dispensed</p>
+                <p class="text-gray-600 text-sm">{{ __('Today\'s Dispensed') }}</p>
                 <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['today_dispensed'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
@@ -40,7 +40,7 @@
     <div class="dashboard-card bg-white rounded-xl shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-600 text-sm">Low Stock Items</p>
+                <p class="text-gray-600 text-sm">{{ __('Low Stock Items') }}</p>
                 <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['low_stock_items'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
@@ -55,7 +55,7 @@
     <div class="dashboard-card bg-white rounded-xl shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-600 text-sm">Expiring Soon</p>
+                <p class="text-gray-600 text-sm">{{ __('Expiring Soon') }}</p>
                 <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['expiring_soon'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
@@ -74,8 +74,8 @@
         <div class="bg-white rounded-xl shadow">
             <div class="p-6 border-b">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-gray-800">Recent Prescriptions</h2>
-                    <a href="{{ route('pharmacy.view-prescriptions') }}" class="text-pharma-primary hover:underline font-medium">View All</a>
+                    <h2 class="text-xl font-bold text-gray-800">{{ __('Recent Prescriptions') }}</h2>
+                    <a href="{{ route('pharmacy.view-prescriptions') }}" class="text-pharma-primary hover:underline font-medium">{{ __('View All') }}</a>
                 </div>
             </div>
             
@@ -141,8 +141,8 @@
         <div class="bg-white rounded-xl shadow">
             <div class="p-6 border-b">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-gray-800">Low Stock Alerts</h2>
-                    <a href="{{ route('pharmacy.inventory-management') }}" class="text-pharma-primary hover:underline font-medium">Manage Inventory</a>
+                    <h2 class="text-xl font-bold text-gray-800">{{ __('Low Stock Alerts') }}</h2>
+                    <a href="{{ route('pharmacy.inventory-management') }}" class="text-pharma-primary hover:underline font-medium">{{ __('Manage Inventory') }}</a>
                 </div>
             </div>
             

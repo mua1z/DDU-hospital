@@ -76,7 +76,7 @@ class ReceptionController extends Controller
 
     public function viewPatient($id)
     {
-        $patient = Patient::with(['appointments', 'prescriptions', 'labRequests'])
+        $patient = Patient::with(['appointments', 'prescriptions', 'labRequests', 'medicalRecords.doctor'])
             ->findOrFail($id);
 
         return view('reception.view-patient', compact('patient'));

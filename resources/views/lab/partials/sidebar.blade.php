@@ -6,8 +6,8 @@
                 <i class="fas fa-flask text-lab-primary text-xl"></i>
             </div>
             <div>
-                <h1 class="text-xl font-bold">DDU Clinics</h1>
-                <p class="text-purple-200 text-xs">Laboratory Portal</p>
+                <h1 class="text-xl font-bold">{{ __('DDU Clinics') }}</h1>
+                <p class="text-purple-200 text-xs">{{ __('Laboratory Portal') }}</p>
             </div>
         </div>
     </div>
@@ -20,7 +20,7 @@
             </div>
             <div>
                 <h2 class="font-semibold">{{ auth()->user()->name }}</h2>
-                <p class="text-purple-200 text-sm">Clinical Laboratory</p>
+                <p class="text-purple-200 text-sm">{{ __('Clinical Laboratory') }}</p>
                 <p class="text-purple-300 text-xs">ID: {{ auth()->user()->dduc_id }}</p>
             </div>
         </div>
@@ -32,44 +32,44 @@
             <li class="nav-item">
                 <a href="{{ route('lab.dashboard') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
+                    <span>{{ __('Dashboard') }}</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('lab.pending-requests') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-clock"></i>
-                    <span>Pending Requests</span>
+                    <span>{{ __('Pending Requests') }}</span>
                     <span class="ml-auto bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center animate-pulse">3</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('lab.pending-requests') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-vial"></i>
-                    <span>Process Test</span>
+                    <span>{{ __('Process Test') }}</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('lab.upload-results') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-upload"></i>
-                    <span>Upload Results</span>
+                    <span>{{ __('Upload Results') }}</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('lab.test-results') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-file-medical-alt"></i>
-                    <span>Test Results</span>
+                    <span>{{ __('Test Results') }}</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('lab.inventory') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-boxes"></i>
-                    <span>Inventory</span>
+                    <span>{{ __('Inventory') }}</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('lab.quality-control') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-clipboard-check"></i>
-                    <span>Quality Control</span>
+                    <span>{{ __('Quality Control') }}</span>
                 </a>
             </li>
         </ul>
@@ -81,7 +81,7 @@
             @csrf
             <button type="submit" class="w-full flex items-center space-x-3 p-3 rounded-lg bg-green-600 hover:bg-green-700 transition text-left text-white shadow-md">
                 <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
+                <span>{{ __('Logout') }}</span>
             </button>
         </form>
     </div>

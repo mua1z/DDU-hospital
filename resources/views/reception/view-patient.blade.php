@@ -92,6 +92,46 @@
                 @endif
             </div>
             
+            <!-- Medical Records History -->
+            <div class="bg-white rounded-xl shadow p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Medical Document History</h2>
+                @if($patient->medicalRecords->count() > 0)
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-ddu-light">
+                            <tr>
+                                <th class="py-3 px-4 text-left text-gray-700 font-semibold">Date</th>
+                                <th class="py-3 px-4 text-left text-gray-700 font-semibold">Doctor</th>
+                                <th class="py-3 px-4 text-left text-gray-700 font-semibold">Diagnosis</th>
+                                <th class="py-3 px-4 text-left text-gray-700 font-semibold">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($patient->medicalRecords as $record)
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="py-3 px-4">{{ $record->visit_date->format('M d, Y') }}</td>
+                                <td class="py-3 px-4">{{ $record->doctor->name ?? 'Unknown' }}</td>
+                                <td class="py-3 px-4">
+                                    <div class="text-sm">
+                                        {{ implode(', ', $record->diagnosis ?? []) }}
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4">
+                                     <!-- Receptionist usually has read-only access or limited edit rights. 
+                                          We can add a View/Edit button if required by "update or edit by doctors and Reception".
+                                          For now, let's assume read-only or a future edit link. -->
+                                     <span class="text-gray-500 text-sm">View Only</span>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @else
+                <p class="text-gray-600 text-center py-4">No medical records found.</p>
+                @endif
+            </div>
+
             <!-- Appointments History -->
             <div class="bg-white rounded-xl shadow p-6 mb-6">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Appointment History</h2>

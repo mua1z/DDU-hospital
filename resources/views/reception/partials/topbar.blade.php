@@ -6,6 +6,69 @@
         </div>
         
         <div class="flex items-center space-x-4 mt-4 lg:mt-0">
+            <!-- Language Switcher -->
+            <div x-data="{ open: false }" class="relative z-50 mr-4">
+                <button @click="open = !open" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold shadow-md transition ease-in-out duration-150 transform hover:scale-105">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-9 3-9m-3 9c-1.657 0-3-9-3-9m0 18c1.657 0 3-9 3-9m-3 9c-1.657 0-3-9-3-9m0 18c1.657 0 3-9 3-9m-3 9c-1.657 0-3-9-3-9m0 18c1.657 0 3-9 3-9m-3 9c-1.657 0-3-9-3-9m0 18c1.657 0 3-9 3-9m-3 9c-1.657 0-3-9-3-9" />
+                    </svg>
+                    <span>{{ strtoupper(app()->getLocale()) }}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform duration-200" :class="{'rotate-180': open}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <div x-show="open" 
+                     @click.away="open = false" 
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 transform scale-95"
+                     x-transition:enter-end="opacity-100 transform scale-100"
+                     x-transition:leave="transition ease-in duration-75"
+                     x-transition:leave-start="opacity-100 transform scale-100"
+                     x-transition:leave-end="opacity-0 transform scale-95"
+                     class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl py-2 border border-gray-100 z-50">
+                     
+                    <div class="px-4 py-2 border-b border-gray-100 mb-1">
+                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Select Language</p>
+                    </div>
+
+                    <a href="{{ route('lang.switch', 'en') }}" class="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">
+                        <div class="flex items-center">
+                            <span class="w-6 text-center text-lg mr-2">🇺🇸</span>
+                            <span class="font-medium">English</span>
+                        </div>
+                        @if(app()->getLocale() == 'en')
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        @endif
+                    </a>
+                    
+                    <a href="{{ route('lang.switch', 'am') }}" class="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">
+                        <div class="flex items-center">
+                            <span class="w-6 text-center text-lg mr-2">🇪🇹</span>
+                            <span class="font-medium">Amharic</span>
+                        </div>
+                        @if(app()->getLocale() == 'am')
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        @endif
+                    </a>
+                    
+                    <a href="{{ route('lang.switch', 'om') }}" class="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">
+                        <div class="flex items-center">
+                            <span class="w-6 text-center text-lg mr-2">🇪🇹</span>
+                            <span class="font-medium">Afaan Oromo</span>
+                        </div>
+                        @if(app()->getLocale() == 'om')
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        @endif
+                    </a>
+                </div>
+            </div>
+
             <!-- Notifications -->
             <div class="relative" id="notificationDropdownContainer">
                 <button class="p-2 rounded-full hover:bg-gray-100" onclick="document.getElementById('notificationList').classList.toggle('hidden')">
@@ -43,3 +106,5 @@
         </div>
     </div>
 </header>
+<!-- Alpine.js -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>

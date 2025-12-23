@@ -1,8 +1,8 @@
 @extends('lab.layouts.layout')
 
 @section('title', 'Lab Technician Dashboard - DDU Clinics')
-@section('page-title', 'Welcome, Lab Technician')
-@section('page-subtitle', 'Laboratory Dashboard')
+@section('page-title', __('Welcome, Lab Technician'))
+@section('page-subtitle', __('Laboratory Dashboard'))
 
 @section('content')
 <!-- Quick Stats -->
@@ -10,7 +10,7 @@
     <div class="dashboard-card bg-white rounded-xl shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-600 text-sm">Pending Tests</p>
+                <p class="text-gray-600 text-sm">{{ __('Pending Tests') }}</p>
                 <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['pending_tests'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
@@ -18,14 +18,14 @@
             </div>
         </div>
         <div class="mt-4 pt-4 border-t">
-            <a href="{{ route('lab.pending-requests') }}" class="text-red-600 text-sm font-medium hover:underline">View All →</a>
+            <a href="{{ route('lab.pending-requests') }}" class="text-red-600 text-sm font-medium hover:underline">{{ __('View All') }} →</a>
         </div>
     </div>
     
     <div class="dashboard-card bg-white rounded-xl shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-600 text-sm">Today's Tests</p>
+                <p class="text-gray-600 text-sm">{{ __('Today\'s Tests') }}</p>
                 <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['today_tests'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
@@ -33,14 +33,14 @@
             </div>
         </div>
         <div class="mt-4 pt-4 border-t">
-            <a href="{{ route('lab.process-test') }}" class="text-blue-600 text-sm font-medium hover:underline">Process Now →</a>
+            <a href="{{ route('lab.process-test') }}" class="text-blue-600 text-sm font-medium hover:underline">{{ __('Process Now') }} →</a>
         </div>
     </div>
     
     <div class="dashboard-card bg-white rounded-xl shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-600 text-sm">Results Pending</p>
+                <p class="text-gray-600 text-sm">{{ __('Results Pending') }}</p>
                 <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['results_pending'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
@@ -48,14 +48,14 @@
             </div>
         </div>
         <div class="mt-4 pt-4 border-t">
-            <a href="{{ route('lab.upload-results') }}" class="text-yellow-600 text-sm font-medium hover:underline">Upload Now →</a>
+            <a href="{{ route('lab.upload-results') }}" class="text-yellow-600 text-sm font-medium hover:underline">{{ __('Upload Now') }} →</a>
         </div>
     </div>
     
     <div class="dashboard-card bg-white rounded-xl shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-600 text-sm">Critical Results</p>
+                <p class="text-gray-600 text-sm">{{ __('Critical Results') }}</p>
                 <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['critical_results'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
@@ -63,7 +63,7 @@
             </div>
         </div>
         <div class="mt-4 pt-4 border-t">
-            <a href="{{ route('lab.test-results') }}" class="text-red-600 text-sm font-medium hover:underline">Review Now →</a>
+            <a href="{{ route('lab.test-results') }}" class="text-red-600 text-sm font-medium hover:underline">{{ __('Review Now') }} →</a>
         </div>
     </div>
 </div>
@@ -74,8 +74,8 @@
         <div class="bg-white rounded-xl shadow">
             <div class="p-6 border-b">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-gray-800">Pending Lab Requests</h2>
-                    <a href="{{ route('lab.pending-requests') }}" class="text-lab-primary hover:underline font-medium">View All</a>
+                    <h2 class="text-xl font-bold text-gray-800">{{ __('Pending Lab Requests') }}</h2>
+                    <a href="{{ route('lab.pending-requests') }}" class="text-lab-primary hover:underline font-medium">{{ __('View All') }}</a>
                 </div>
             </div>
             
@@ -136,8 +136,8 @@
         <div class="bg-white rounded-xl shadow">
             <div class="p-6 border-b">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-gray-800">Recently Processed</h2>
-                    <a href="{{ route('lab.test-results') }}" class="text-lab-primary hover:underline font-medium">View All</a>
+                    <h2 class="text-xl font-bold text-gray-800">{{ __('Recently Processed') }}</h2>
+                    <a href="{{ route('lab.test-results') }}" class="text-lab-primary hover:underline font-medium">{{ __('View All') }}</a>
                 </div>
             </div>
             

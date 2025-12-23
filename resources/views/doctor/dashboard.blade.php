@@ -2,9 +2,9 @@
 
 @section('title', 'Doctor Dashboard - DDU Clinics')
 @section('page-title')
-Welcome, Dr. {{ auth()->user()->name }}
+{{ __('Welcome, Dr.') }} {{ auth()->user()->name }}
 @endsection
-@section('page-subtitle', 'Today\'s Overview')
+@section('page-subtitle', __('Today\'s Overview'))
 
 @section('content')
 <!-- Quick Stats -->
@@ -12,7 +12,7 @@ Welcome, Dr. {{ auth()->user()->name }}
     <div class="dashboard-card bg-white rounded-xl shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-600 text-sm">Today's Appointments</p>
+                <p class="text-gray-600 text-sm">{{ __('Today\'s Appointments') }}</p>
                 <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['today_appointments'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
@@ -20,14 +20,14 @@ Welcome, Dr. {{ auth()->user()->name }}
             </div>
         </div>
         <div class="mt-4 pt-4 border-t">
-            <a href="{{ route('doctor.view-appointments') }}" class="text-blue-600 text-sm font-medium hover:underline">View All →</a>
+            <a href="{{ route('doctor.view-appointments') }}" class="text-blue-600 text-sm font-medium hover:underline">{{ __('View All') }} →</a>
         </div>
     </div>
     
     <div class="dashboard-card bg-white rounded-xl shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-600 text-sm">Pending Lab Results</p>
+                <p class="text-gray-600 text-sm">{{ __('Pending Lab Results') }}</p>
                 <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['pending_lab_results'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
@@ -35,14 +35,14 @@ Welcome, Dr. {{ auth()->user()->name }}
             </div>
         </div>
         <div class="mt-4 pt-4 border-t">
-            <a href="{{ route('doctor.view-lab-results') }}" class="text-yellow-600 text-sm font-medium hover:underline">Check Results →</a>
+            <a href="{{ route('doctor.view-lab-results') }}" class="text-yellow-600 text-sm font-medium hover:underline">{{ __('Check Results') }} →</a>
         </div>
     </div>
     
     <div class="dashboard-card bg-white rounded-xl shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-600 text-sm">Prescriptions Today</p>
+                <p class="text-gray-600 text-sm">{{ __('Prescriptions Today') }}</p>
                 <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['prescriptions_today'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
@@ -50,14 +50,14 @@ Welcome, Dr. {{ auth()->user()->name }}
             </div>
         </div>
         <div class="mt-4 pt-4 border-t">
-            <a href="{{ route('doctor.write-prescription') }}" class="text-green-600 text-sm font-medium hover:underline">Write New →</a>
+            <a href="{{ route('doctor.write-prescription') }}" class="text-green-600 text-sm font-medium hover:underline">{{ __('Write New') }} →</a>
         </div>
     </div>
     
     <div class="dashboard-card bg-white rounded-xl shadow p-6">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-600 text-sm">Urgent Cases</p>
+                <p class="text-gray-600 text-sm">{{ __('Urgent Cases') }}</p>
                 <h3 class="text-2xl font-bold text-gray-800 mt-2">{{ $stats['urgent_cases'] }}</h3>
             </div>
             <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
@@ -65,7 +65,7 @@ Welcome, Dr. {{ auth()->user()->name }}
             </div>
         </div>
         <div class="mt-4 pt-4 border-t">
-            <a href="{{ route('doctor.view-appointments') }}" class="text-red-600 text-sm font-medium hover:underline">Attend Now →</a>
+            <a href="{{ route('doctor.view-appointments') }}" class="text-red-600 text-sm font-medium hover:underline">{{ __('Attend Now') }} →</a>
         </div>
     </div>
 </div>
@@ -76,8 +76,8 @@ Welcome, Dr. {{ auth()->user()->name }}
         <div class="bg-white rounded-xl shadow">
             <div class="p-6 border-b">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-gray-800">Today's Schedule</h2>
-                    <a href="{{ route('doctor.view-appointments') }}" class="text-ddu-primary hover:underline font-medium">View All</a>
+                    <h2 class="text-xl font-bold text-gray-800">{{ __('Today\'s Schedule') }}</h2>
+                    <a href="{{ route('doctor.view-appointments') }}" class="text-ddu-primary hover:underline font-medium">{{ __('View All') }}</a>
                 </div>
             </div>
             
@@ -138,8 +138,8 @@ Welcome, Dr. {{ auth()->user()->name }}
                         <i class="fas fa-history text-purple-600"></i>
                     </div>
                     <div>
-                        <h3 class="font-medium text-gray-800">Document History</h3>
-                        <p class="text-gray-600 text-sm">Update patient records</p>
+                        <h3 class="font-medium text-gray-800">{{ __('Document History') }}</h3>
+                        <p class="text-gray-600 text-sm">{{ __('Document Patient History') }}</p>
                     </div>
                 </a>
                 
@@ -162,8 +162,8 @@ Welcome, Dr. {{ auth()->user()->name }}
     <div class="bg-white rounded-xl shadow">
         <div class="p-6 border-b">
             <div class="flex justify-between items-center">
-                <h2 class="text-xl font-bold text-gray-800">Recent Patients</h2>
-                <a href="{{ route('doctor.document-history') }}" class="text-ddu-primary hover:underline font-medium">View All</a>
+                <h2 class="text-xl font-bold text-gray-800">{{ __('Recent Patients') }}</h2>
+                <a href="{{ route('doctor.document-history') }}" class="text-ddu-primary hover:underline font-medium">{{ __('View All') }}</a>
             </div>
         </div>
         
@@ -171,11 +171,11 @@ Welcome, Dr. {{ auth()->user()->name }}
             <table class="w-full">
                 <thead class="bg-ddu-light">
                     <tr>
-                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">Patient Name</th>
-                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">Visit Time</th>
-                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">Condition</th>
-                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">Status</th>
-                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">Actions</th>
+                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">{{ __('Patient Name') }}</th>
+                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">{{ __('Visit Time') }}</th>
+                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">{{ __('Condition') }}</th>
+                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">{{ __('Status') }}</th>
+                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>

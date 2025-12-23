@@ -10,7 +10,9 @@ use App\Models\Patient;
 use App\Models\Prescription;
 use App\Models\PrescriptionItem;
 use App\Models\Medication;
+use App\Models\MedicalRecord;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class DoctorController extends Controller
@@ -457,32 +459,45 @@ class DoctorController extends Controller
         return redirect()->back()->with('success', 'Consultation recorded successfully.');
     }
 
-    public function documentHistory()
+    public function documentHistory(Request $request)
     {
-        $patients = Patient::orderBy('full_name')->get();
+        $patientId = $request->get('patient_id');
+        $patient = null;
+        $visitHistory = collect();
 
-        // Recent visit history placeholder; in production, source from real encounters/appointments
-        $visitHistory = Appointment::with('patient', 'doctor')
-            ->where('doctor_id', auth()->id())
-            ->orderBy('appointment_date', 'desc')
-            ->orderBy('appointment_time', 'desc')
-            ->limit(5)
-            ->get()
-            ->map(function ($appointment) {
-                return [
-                    'date' => ($appointment->appointment_date ? $appointment->appointment_date->format('M d, Y') : $appointment->created_at->format('M d, Y'))
-                        . ', ' . \Carbon\Carbon::parse($appointment->appointment_time ?? $appointment->created_at)->format('h:i A'),
-                    'diagnosis' => $appointment->reason ?? 'Consultation',
-                    'doctor' => $appointment->doctor->name ?? 'Doctor',
-                    'status' => ucfirst(str_replace('_', ' ', $appointment->status ?? 'scheduled')),
-                    'statusColor' => $appointment->status === 'in_progress' ? 'text-green-600' : 'text-blue-600',
-                    'borderColor' => $appointment->status === 'in_progress' ? 'border-green-500' : 'border-blue-500',
-                    'treatments' => [], // populate when treatments are available
-                ];
-            })
-            ->toArray();
+        if ($patientId) {
+            $patient = Patient::with(['medicalRecords.doctor', 'prescriptions.items.medication'])->find($patientId);
+            if ($patient) {
+                $visitHistory = $patient->medicalRecords()->orderBy('visit_date', 'desc')->get();
+            }
+        }
 
-        return view('doctor.document-history', compact('patients', 'visitHistory'));
+        // Fetch recent patients for selection
+        $recentPatients = Patient::orderBy('updated_at', 'desc')->limit(10)->get();
+
+        return view('doctor.document-history', compact('patient', 'recentPatients', 'visitHistory'));
+    }
+
+    public function storeMedicalRecord(Request $request)
+    {
+        $validated = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'visit_date' => 'required|date',
+            'chief_complaint' => 'required|string',
+            'history_of_present_illness' => 'required|string',
+            'vital_signs' => 'nullable|array',
+            'examination_findings' => 'required|string',
+            'diagnosis' => 'required|array',
+            'treatment_plan' => 'required|string',
+            'notes' => 'nullable|string',
+        ]);
+
+        $validated['doctor_id'] = auth()->id();
+        
+        MedicalRecord::create($validated);
+
+        return redirect()->route('doctor.document-history', ['patient_id' => $validated['patient_id']])
+            ->with('success', 'Medical record saved successfully.');
     }
 
     private function getStatusClass($status)

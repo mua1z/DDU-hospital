@@ -6,8 +6,8 @@
                 <i class="fas fa-prescription-bottle-alt text-purple-600 text-xl"></i>
             </div>
             <div>
-                <h1 class="text-xl font-bold">DDU Clinics</h1>
-                <p class="text-purple-200 text-xs">Pharmacy Portal</p>
+                <h1 class="text-xl font-bold">{{ __('DDU Clinics') }}</h1>
+                <p class="text-purple-200 text-xs">{{ __('Pharmacy Portal') }}</p>
             </div>
         </div>
     </div>
@@ -20,7 +20,7 @@
             </div>
             <div>
                 <h2 class="font-semibold">{{ auth()->user()->name }}</h2>
-                <p class="text-purple-200 text-sm">Pharmacy Department</p>
+                <p class="text-purple-200 text-sm">{{ __('Pharmacy Department') }}</p>
                 <p class="text-purple-300 text-xs">ID: {{ auth()->user()->dduc_id }}</p>
             </div>
         </div>
@@ -32,39 +32,39 @@
             <li class="nav-item">
                 <a href="{{ route('pharmacy.dashboard') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
+                    <span>{{ __('Dashboard') }}</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('pharmacy.view-prescriptions') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-prescription"></i>
-                    <span>View Prescriptions</span>
+                    <span>{{ __('View Prescriptions') }}</span>
                     <span class="ml-auto bg-purple-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">8</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('pharmacy.dispense-medications') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-pills"></i>
-                    <span>Dispense Medications</span>
+                    <span>{{ __('Dispense Medications') }}</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('pharmacy.inventory-management') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-boxes"></i>
-                    <span>Inventory Management</span>
+                    <span>{{ __('Inventory Management') }}</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('pharmacy.check-expiry') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-calendar-times"></i>
-                    <span>Check Expiry</span>
+                    <span>{{ __('Check Expiry') }}</span>
                     <span class="ml-auto bg-yellow-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center blink-warning">3</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('pharmacy.generate-reports') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-chart-bar"></i>
-                    <span>Generate Reports</span>
+                    <span>{{ __('Generate Reports') }}</span>
                 </a>
             </li>
         </ul>
@@ -76,7 +76,7 @@
             @csrf
             <button type="submit" class="w-full flex items-center space-x-3 p-3 rounded-lg bg-green-600 hover:bg-green-700 transition text-left text-white shadow-md">
                 <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
+                <span>{{ __('Logout') }}</span>
             </button>
         </form>
     </div>

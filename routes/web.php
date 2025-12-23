@@ -12,6 +12,14 @@ Route::view('/about', 'about');
 Route::view('/services', 'services');
 Route::view('/contact', 'contact');
 
+// Language Switch Route
+Route::get('lang/{locale}', function ($locale) {
+    if (in_array($locale, ['en', 'am', 'om'])) {
+        session(['locale' => $locale]);
+    }
+    return redirect()->back();
+})->name('lang.switch');
+
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Middleware\EnsureAdmin;
@@ -68,6 +76,10 @@ Route::middleware(['auth'])->prefix('doctor')->name('doctor.')->group(function (
     Route::post('/request-lab-test', [DoctorController::class, 'storeLabRequest'])->name('store-lab-request');
     Route::get('/view-lab-results', [DoctorController::class, 'viewLabResults'])->name('view-lab-results');
     Route::get('/view-lab-results/{id}', [DoctorController::class, 'viewResultDetails'])->name('view-result-details');
+    
+    // Document History
+    Route::get('/document-history', [DoctorController::class, 'documentHistory'])->name('document-history');
+    Route::post('/document-history', [DoctorController::class, 'storeMedicalRecord'])->name('store-medical-record');
     Route::get('/write-prescription', [DoctorController::class, 'writePrescription'])->name('write-prescription');
     Route::post('/write-prescription', [DoctorController::class, 'storePrescription'])->name('store-prescription');
     Route::get('/document-history', [DoctorController::class, 'documentHistory'])->name('document-history');

@@ -6,8 +6,8 @@
                 <i class="fas fa-shield-alt text-purple-600 text-xl"></i>
             </div>
             <div>
-                <h1 class="text-xl font-bold">DDU Clinics</h1>
-                <p class="text-purple-200 text-xs">Admin Portal</p>
+                <h1 class="text-xl font-bold">{{ __('DDU Clinics') }}</h1>
+                <p class="text-purple-200 text-xs">{{ __('Admin Portal') }}</p>
             </div>
         </div>
     </div>
@@ -20,7 +20,7 @@
             </div>
             <div>
                 <h2 class="font-semibold">{{ auth()->user()->name }}</h2>
-                <p class="text-purple-200 text-sm">System Administrator</p>
+                <p class="text-purple-200 text-sm">{{ __('System Administrator') }}</p>
                 <p class="text-purple-300 text-xs">ID: {{ auth()->user()->dduc_id }}</p>
             </div>
         </div>
@@ -32,25 +32,25 @@
             <li class="nav-item">
                 <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
+                    <span>{{ __('Dashboard') }}</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('admin.users.index') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-users"></i>
-                    <span>Manage Users</span>
+                    <span>{{ __('Manage Users') }}</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('admin.settings.index') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-cogs"></i>
-                    <span>System Settings</span>
+                    <span>{{ __('System Settings') }}</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('admin.logs.index') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-file-alt"></i>
-                    <span>System Logs</span>
+                    <span>{{ __('System Logs') }}</span>
                 </a>
             </li>
         </ul>
@@ -62,7 +62,7 @@
             @csrf
             <button type="submit" class="w-full flex items-center space-x-3 p-3 rounded-lg bg-green-600 hover:bg-green-700 transition text-left text-white shadow-md">
                 <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
+                <span>{{ __('Logout') }}</span>
             </button>
         </form>
     </div>

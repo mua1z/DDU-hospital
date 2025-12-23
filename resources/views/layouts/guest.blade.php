@@ -21,13 +21,12 @@
             <div class="absolute top-0 left-0 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
             <div class="absolute bottom-0 right-0 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
             
-            <div class="relative z-10 flex flex-col items-center">
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-[#4c1d95]" />
-                </a>
-            </div>
-
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-xl overflow-hidden sm:rounded-2xl border-t-4 border-[#4c1d95] relative z-10">
+            <div class="w-full sm:max-w-md mt-6 px-6 py-8 bg-white shadow-xl overflow-hidden sm:rounded-2xl border-t-4 border-[#4c1d95] relative z-10">
+                <div class="flex justify-center mb-6">
+                    <a href="/">
+                        <x-application-logo class="w-20 h-20 fill-current text-[#4c1d95]" />
+                    </a>
+                </div>
                 {{ $slot }}
             </div>
             

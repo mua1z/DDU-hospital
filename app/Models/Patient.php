@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Appointment;
 use App\Models\LabRequest;
 use App\Models\Prescription;
+use App\Models\MedicalRecord;
 
 class Patient extends Model
 {
@@ -51,5 +52,10 @@ class Patient extends Model
     public function prescriptions(): HasMany
     {
         return $this->hasMany(Prescription::class);
+    }
+
+    public function medicalRecords(): HasMany
+    {
+        return $this->hasMany(MedicalRecord::class);
     }
 }
