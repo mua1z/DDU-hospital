@@ -38,7 +38,7 @@ Route::middleware(['auth', EnsureAdmin::class])->prefix('admin')->name('admin.')
     Route::get('users/{user}/change-password', [AdminUserController::class, 'showChangePassword'])->name('users.change-password.form');
     Route::post('users/{user}/change-password', [AdminUserController::class, 'changePassword'])->name('users.change-password');
     Route::post('users/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->name('users.reset-password');
-    
+
     // System Settings
     Route::get('settings', [App\Http\Controllers\Admin\AdminSettingsController::class, 'index'])->name('settings.index');
     Route::post('settings', [App\Http\Controllers\Admin\AdminSettingsController::class, 'update'])->name('settings.update');
@@ -76,7 +76,7 @@ Route::middleware(['auth'])->prefix('doctor')->name('doctor.')->group(function (
     Route::post('/request-lab-test', [DoctorController::class, 'storeLabRequest'])->name('store-lab-request');
     Route::get('/view-lab-results', [DoctorController::class, 'viewLabResults'])->name('view-lab-results');
     Route::get('/view-lab-results/{id}', [DoctorController::class, 'viewResultDetails'])->name('view-result-details');
-    
+
     // Document History
     Route::get('/document-history', [DoctorController::class, 'documentHistory'])->name('document-history');
     Route::post('/document-history', [DoctorController::class, 'storeMedicalRecord'])->name('store-medical-record');
