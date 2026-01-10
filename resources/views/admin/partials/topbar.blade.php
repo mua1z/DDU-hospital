@@ -4,6 +4,16 @@
         <p class="text-gray-500 text-sm">DDU Clinic Management System - Admin Module</p>
     </div>
     
+    <!-- Search Bar -->
+    <div class="flex-1 mx-4 lg:mx-8 hidden md:block">
+        <form action="{{ route('global.search') }}" method="GET" class="relative">
+            <input type="text" name="query" placeholder="Search users..." class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors">
+            <div class="absolute left-3 top-2.5 text-gray-400">
+                <i class="fas fa-search"></i>
+            </div>
+        </form>
+    </div>
+    
     <div class="flex items-center space-x-4">
         <!-- Language Switcher -->
         <div x-data="{ open: false }" class="relative z-50 mr-4">
@@ -72,29 +82,46 @@
         </div>
         
         <!-- Notifications -->
-        <div class="relative" x-data="{ open: false }">
-            <button @click="open = !open" class="text-gray-500 hover:text-purple-600 transition relative">
-                <i class="fas fa-bell text-xl"></i>
-                @php
-                    $unreadCount = auth()->user()->unreadNotifications->count();
-                @endphp
-                @if($unreadCount > 0)
-                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                        {{ $unreadCount }}
-                    </span>
-                @endif
+        <div class="relative" x-data="{ 
+            open: false,
+            unreadCount: {{ auth()->user()->unreadNotifications->count() }},
+            markRead() {
+                if (this.unreadCount > 0) {
+                    fetch('{{ route('notifications.mark-read') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    this.unreadCount = 0;
+                }
+            }
+        }">
+            <button @click="markRead(); open = !open" class="p-2 rounded-full hover:bg-gray-100 relative transition">
+                <i class="fas fa-bell text-gray-500 hover:text-purple-600 text-xl"></i>
+                <template x-if="unreadCount > 0">
+                    <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse" x-text="unreadCount"></span>
+                </template>
             </button>
             
             <!-- Dropdown -->
             <div x-show="open" 
                  @click.away="open = false"
-                 class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 hidden"
-                 :class="{ 'block': open, 'hidden': !open }">
-                <div class="px-4 py-2 border-b border-gray-100 flex justify-between items-center">
-                    <span class="font-semibold text-gray-800">Notifications</span>
-                    <a href="#" class="text-xs text-purple-600 hover:underline">Mark all read</a>
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 transform scale-95"
+                 x-transition:enter-end="opacity-100 transform scale-100"
+                 x-transition:leave="transition ease-in duration-75"
+                 x-transition:leave-start="opacity-100 transform scale-100"
+                 x-transition:leave-end="opacity-0 transform scale-95"
+                 class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-50 border border-gray-200"
+                 style="display: none;">
+                <div class="p-3 border-b text-sm font-semibold text-gray-700 flex justify-between">
+                    <span>Notifications</span>
+                    <template x-if="unreadCount > 0">
+                        <span class="text-xs text-blue-600">Marking read...</span>
+                    </template>
                 </div>
-                
                 <div class="max-h-64 overflow-y-auto">
                     @forelse(auth()->user()->unreadNotifications as $notification)
                         <div class="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 transition">

@@ -17,6 +17,11 @@
             <p>{{ session('status') }}</p>
         </div>
     @endif
+    @if(session('success'))
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded shadow-sm" role="alert">
+            <p>{{ session('success') }}</p>
+        </div>
+    @endif
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Settings Navigation -->
@@ -25,15 +30,6 @@
                 <nav class="flex flex-col">
                     <a href="#" class="px-4 py-3 bg-purple-50 text-purple-700 font-medium border-l-4 border-purple-600 flex items-center">
                         <i class="fas fa-cogs w-6"></i> General
-                    </a>
-                    <a href="#" class="px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-800 transition flex items-center">
-                        <i class="fas fa-envelope w-6"></i> Email
-                    </a>
-                    <a href="#" class="px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-800 transition flex items-center">
-                        <i class="fas fa-shield-alt w-6"></i> Security
-                    </a>
-                    <a href="#" class="px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-800 transition flex items-center">
-                        <i class="fas fa-database w-6"></i> Backup
                     </a>
                 </nav>
             </div>
@@ -51,17 +47,31 @@
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Application Name</label>
                         <input type="text" name="app_name" value="{{ $settings['app_name'] ?? 'DDU Clinics' }}" 
-                               class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition">
+                               class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition" required>
+                    </div>
+
+                    <!-- Hospital Email -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Hospital Contact Email</label>
+                        <input type="email" name="hospital_email" value="{{ $settings['hospital_email'] ?? '' }}" 
+                               class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition" required>
+                    </div>
+
+                    <!-- Hospital Phone -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Hospital Contact Phone</label>
+                        <input type="text" name="hospital_phone" value="{{ $settings['hospital_phone'] ?? '' }}" 
+                               class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition" required>
                     </div>
 
                     <!-- Timezone -->
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2">System Timezone</label>
                         <select name="system_timezone" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition bg-white">
-                            <option value="UTC">UTC</option>
-                            <option value="Africa/Addis_Ababa" selected>Africa/Addis_Ababa</option>
-                            <option value="America/New_York">America/New_York</option>
-                            <option value="Europe/London">Europe/London</option>
+                            <option value="UTC" {{ ($settings['system_timezone'] ?? '') == 'UTC' ? 'selected' : '' }}>UTC</option>
+                            <option value="Africa/Addis_Ababa" {{ ($settings['system_timezone'] ?? '') == 'Africa/Addis_Ababa' ? 'selected' : '' }}>Africa/Addis_Ababa</option>
+                            <option value="America/New_York" {{ ($settings['system_timezone'] ?? '') == 'America/New_York' ? 'selected' : '' }}>America/New_York</option>
+                            <option value="Europe/London" {{ ($settings['system_timezone'] ?? '') == 'Europe/London' ? 'selected' : '' }}>Europe/London</option>
                         </select>
                     </div>
 

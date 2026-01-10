@@ -113,6 +113,7 @@
                                     <option value="Laboratory" {{ old('role') == 'Laboratory' ? 'selected' : '' }}>Lab Technician</option>
                                     <option value="Pharmacist" {{ old('role') == 'Pharmacist' ? 'selected' : '' }}>Pharmacist</option>
                                     <option value="Admin" {{ old('role') == 'Admin' ? 'selected' : '' }}>Administrator</option>
+                                    <option value="Patient" {{ old('role') == 'Patient' ? 'selected' : '' }}>Patient</option>
                                 </select>
                                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
                                     <i class="fas fa-chevron-down text-xs"></i>

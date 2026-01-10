@@ -14,6 +14,10 @@ use App\Models\MedicalRecord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Services\ReportService;
+use App\Exports\AppointmentsExport;
+use App\Exports\PrescriptionsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DoctorController extends Controller
 {
@@ -40,6 +44,16 @@ class DoctorController extends Controller
                 ];
             });
 
+        // Add Upcoming Appointments (Future) to ensure doctors see newly assigned future visits
+        $upcomingAppointments = Appointment::with('patient')
+            ->where('doctor_id', $doctorId)
+            ->whereDate('appointment_date', '>', $today)
+            ->where('status', 'scheduled')
+            ->orderBy('appointment_date')
+            ->orderBy('appointment_time')
+            ->limit(5)
+            ->get();
+
         $stats = [
             'today_appointments' => Appointment::where('doctor_id', $doctorId)
                 ->whereDate('appointment_date', $today)
@@ -64,7 +78,7 @@ class DoctorController extends Controller
             ->limit(5)
             ->get();
 
-        return view('doctor.dashboard', compact('todayAppointments', 'stats', 'recentPatients'));
+        return view('doctor.dashboard', compact('todayAppointments', 'stats', 'recentPatients', 'upcomingAppointments'));
     }
 
     public function viewAppointments()
@@ -170,11 +184,11 @@ class DoctorController extends Controller
         $validated = $request->validate([
             'patient_id' => 'required|exists:patients,id',
             'appointment_id' => 'nullable|exists:appointments,id',
-            'test_type' => 'required|string|max:255',
-            'test_description' => 'nullable|string',
-            'clinical_notes' => 'nullable|string',
+            'test_type' => ['required', 'string', 'max:255'], // Text/Mixed
+            'test_description' => 'nullable|string', // Text/Mixed
+            'clinical_notes' => 'nullable|string', // Text/Mixed
             'priority' => 'required|in:normal,urgent,stat',
-            'due_date' => 'nullable|date',
+            'due_date' => 'nullable|date|after_or_equal:today',
         ]);
 
         $validated['request_number'] = 'REQ' . strtoupper(Str::random(8));
@@ -222,10 +236,10 @@ class DoctorController extends Controller
             'follow_up' => 'nullable|string',
             'medicines' => 'required|array|min:1',
             'medicines.*.name' => 'required|string',
-            'medicines.*.dosage' => 'required|string',
-            'medicines.*.frequency' => 'required|string',
-            'medicines.*.duration' => 'required|string',
-            'medicines.*.quantity' => 'required|integer|min:1',
+            'medicines.*.dosage' => 'required|string', // Mixed (e.g. 500mg)
+            'medicines.*.frequency' => 'required|string', // Mixed (e.g. 2 times a day)
+            'medicines.*.duration' => 'required|integer|min:1', // Logic expects number of days now based on change
+            'medicines.*.quantity' => 'required|integer|min:1', // Number only
             'medicines.*.instructions' => 'nullable|string',
         ]);
 
@@ -482,14 +496,14 @@ class DoctorController extends Controller
     {
         $validated = $request->validate([
             'patient_id' => 'required|exists:patients,id',
-            'visit_date' => 'required|date',
-            'chief_complaint' => 'required|string',
-            'history_of_present_illness' => 'required|string',
+            'visit_date' => 'required|date|before_or_equal:today',
+            'chief_complaint' => 'required|string', // Text/Mixed
+            'history_of_present_illness' => 'required|string', // Text/Mixed
             'vital_signs' => 'nullable|array',
-            'examination_findings' => 'required|string',
+            'examination_findings' => 'required|string', // Text/Mixed
             'diagnosis' => 'required|array',
-            'treatment_plan' => 'required|string',
-            'notes' => 'nullable|string',
+            'treatment_plan' => 'required|string', // Text/Mixed
+            'notes' => 'nullable|string', // Text/Mixed
         ]);
 
         $validated['doctor_id'] = auth()->id();
@@ -500,6 +514,49 @@ class DoctorController extends Controller
             ->with('success', 'Medical record saved successfully.');
     }
 
+    public function approveAppointment(Request $request, Appointment $appointment)
+    {
+        if ($appointment->doctor_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $appointment->status = 'scheduled';
+        $appointment->save();
+
+        return redirect()->back()->with('success', 'Appointment approved successfully.');
+    }
+
+    public function rejectAppointment(Request $request, Appointment $appointment)
+    {
+        if ($appointment->doctor_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $appointment->status = 'cancelled';
+        $appointment->save();
+
+        return redirect()->back()->with('success', 'Appointment rejected.');
+    }
+
+    public function rescheduleAppointment(Request $request, Appointment $appointment)
+    {
+        if ($appointment->doctor_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $validated = $request->validate([
+            'appointment_date' => 'required|date|after:today',
+            'appointment_time' => ['required', 'date_format:H:i'], // Time format validation
+        ]);
+
+        $appointment->appointment_date = $validated['appointment_date'];
+        $appointment->appointment_time = $validated['appointment_time'];
+        $appointment->status = 'rescheduled';
+        $appointment->save();
+
+        return redirect()->back()->with('success', 'Appointment rescheduled successfully.');
+    }
+
     private function getStatusClass($status)
     {
         return match($status) {
@@ -508,5 +565,58 @@ class DoctorController extends Controller
             'scheduled' => 'bg-blue-100 text-blue-800',
             default => 'bg-gray-100 text-gray-800',
         };
+    }
+
+    /**
+     * Export appointments as PDF
+     */
+    public function exportAppointmentsPDF()
+    {
+        $doctorId = auth()->id();
+        $appointments = Appointment::with(['patient', 'doctor'])
+            ->where('doctor_id', $doctorId)
+            ->orderBy('appointment_date', 'desc')
+            ->get();
+        
+        $reportService = new ReportService();
+        return $reportService->generatePDF(
+            ['appointments' => $appointments],
+            'reports.appointments-pdf',
+            'doctor-appointments-' . now()->format('Y-m-d') . '.pdf'
+        );
+    }
+
+    /**
+     * Export appointments as Excel
+     */
+    public function exportAppointmentsExcel()
+    {
+        $doctorId = auth()->id();
+        $appointments = Appointment::with(['patient', 'doctor'])
+            ->where('doctor_id', $doctorId)
+            ->orderBy('appointment_date', 'desc')
+            ->get();
+        
+        return Excel::download(
+            new AppointmentsExport($appointments),
+            'doctor-appointments-' . now()->format('Y-m-d') . '.xlsx'
+        );
+    }
+
+    /**
+     * Export prescriptions as Excel
+     */
+    public function exportPrescriptionsExcel()
+    {
+        $doctorId = auth()->id();
+        $prescriptions = Prescription::with(['patient', 'prescribedBy', 'items'])
+            ->where('prescribed_by', $doctorId)
+            ->orderBy('prescription_date', 'desc')
+            ->get();
+        
+        return Excel::download(
+            new PrescriptionsExport($prescriptions),
+            'doctor-prescriptions-' . now()->format('Y-m-d') . '.xlsx'
+        );
     }
 }

@@ -14,6 +14,7 @@ use App\Models\MedicalRecord;
 class Patient extends Model
 {
     protected $fillable = [
+        'user_id',
         'card_number',
         'full_name',
         'date_of_birth',

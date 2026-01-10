@@ -31,8 +31,8 @@ class RegisteredUserController extends Controller
     {
         // This endpoint should be protected for Admin use only.
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'dduc_id' => ['required', 'string', 'max:255', 'unique:users,dduc_id'],
+            'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\.]+$/'], // Text only (letters, spaces, dots)
+            'dduc_id' => ['required', 'string', 'max:255', 'alpha_num', 'unique:users,dduc_id'], // Alphanumeric
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['sometimes', 'string', 'in:User,Admin,Receptions,Doctors,Laboratory,Pharmacist'],
         ]);

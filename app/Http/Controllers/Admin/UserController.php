@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Services\ReportService;
+use App\Exports\UsersExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
@@ -23,10 +26,10 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => ['required','string','max:255'],
-            'dduc_id' => ['required','string','max:255','unique:users,dduc_id'],
+            'name' => ['required','string','max:255', 'regex:/^[a-zA-Z\s\.]+$/'], // Name text only
+            'dduc_id' => ['required','string','max:255','alpha_num','unique:users,dduc_id'], // Alphanumeric
             'password' => ['required','confirmed','min:8'],
-            'role' => ['required','in:Admin,Receptions,Doctors,Laboratory,Pharmacist,User'],
+            'role' => ['required','in:Admin,Receptions,Doctors,Laboratory,Pharmacist,User,Patient'],
             'is_active' => ['sometimes','boolean'],
         ]);
 
@@ -43,6 +46,21 @@ class UserController extends Controller
             'is_active' => $request->boolean('is_active', false),
         ]);
 
+        // If keeping role as Patient, ensure Patient record exists
+        if (strcasecmp($data['role'], 'Patient') === 0) {
+            $cardNumber = str_ireplace('DDUC', '', $dduc); // Remove DDUC prefix
+            // Create stub patient record
+            \App\Models\Patient::firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'full_name' => $user->name,
+                    'card_number' => $cardNumber,
+                    'is_active' => $user->is_active,
+                    // DOB and Gender are nullable now, so safe to omit
+                ]
+            );
+        }
+
         return redirect()->route('admin.users.index')->with('status', 'User created');
     }
 
@@ -54,9 +72,9 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $data = $request->validate([
-            'name' => ['required','string','max:255'],
-            'dduc_id' => ['required','string','max:255','unique:users,dduc_id,'.$user->id],
-            'role' => ['required','in:Admin,Receptions,Doctors,Laboratory,Pharmacist,User'],
+            'name' => ['required','string','max:255', 'regex:/^[a-zA-Z\s\.]+$/'], // Name text only
+            'dduc_id' => ['required','string','max:255','alpha_num','unique:users,dduc_id,'.$user->id], // Alphanumeric
+            'role' => ['required','in:Admin,Receptions,Doctors,Laboratory,Pharmacist,User,Patient'],
             'is_active' => ['sometimes','boolean'],
         ]);
 
@@ -71,6 +89,19 @@ class UserController extends Controller
             'role' => $data['role'],
             'is_active' => $request->boolean('is_active', false),
         ]);
+
+        // If updated to Patient, ensure Patient record exists
+        if (strcasecmp($data['role'], 'Patient') === 0) {
+            $cardNumber = str_ireplace('DDUC', '', $dduc);
+            \App\Models\Patient::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'full_name' => $user->name,
+                    'card_number' => $cardNumber,
+                    'is_active' => $user->is_active,
+                ]
+            );
+        }
 
         return redirect()->route('admin.users.index')->with('status', 'User updated');
     }
@@ -117,5 +148,33 @@ class UserController extends Controller
         ]);
 
         return redirect()->route('admin.users.index')->with('status', 'Password updated for '.$user->dduc_id);
+    }
+
+    /**
+     * Export users as PDF
+     */
+    public function exportPDF()
+    {
+        $users = User::orderBy('id', 'desc')->get();
+        
+        $reportService = new ReportService();
+        return $reportService->generatePDF(
+            ['users' => $users],
+            'reports.users-pdf',
+            'users-report-' . now()->format('Y-m-d') . '.pdf'
+        );
+    }
+
+    /**
+     * Export users as Excel
+     */
+    public function exportExcel()
+    {
+        $users = User::orderBy('id', 'desc')->get();
+        
+        return Excel::download(
+            new UsersExport($users),
+            'users-report-' . now()->format('Y-m-d') . '.xlsx'
+        );
     }
 }

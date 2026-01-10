@@ -18,12 +18,14 @@
             @csrf
             @method('PUT')
 
-            <!-- DDUC ID (Read-only) -->
+            <!-- DDUC ID -->
             <div class="mb-6">
                 <label for="dduc_id" class="block text-sm font-medium text-gray-700 mb-2">DDUC ID</label>
-                <input id="dduc_id" class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed focus:outline-none" 
-                       type="text" name="dduc_id" value="{{ $user->dduc_id }}" readonly>
-                <p class="text-xs text-gray-500 mt-1">DDUC ID cannot be changed.</p>
+                <input id="dduc_id" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition" 
+                       type="text" name="dduc_id" value="{{ old('dduc_id', $user->dduc_id) }}" required>
+                @error('dduc_id')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Name -->
@@ -42,7 +44,7 @@
             <div class="mb-6">
                 <label for="role" class="block text-sm font-medium text-gray-700 mb-2">Role</label>
                 <select id="role" name="role" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition bg-white">
-                    @foreach(['User', 'Admin', 'Receptions', 'Doctors', 'Laboratory', 'Pharmacist'] as $role)
+                    @foreach(['User', 'Admin', 'Receptions', 'Doctors', 'Laboratory', 'Pharmacist', 'Patient'] as $role)
                         <option value="{{ $role }}" {{ old('role', $user->role) == $role ? 'selected' : '' }}>{{ $role }}</option>
                     @endforeach
                 </select>

@@ -13,6 +13,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
+            \App\Http\Middleware\CheckSessionTimeout::class, // FR-25: Auto logout on inactivity
+            \App\Http\Middleware\LogActivityMiddleware::class,
+        ]);
+        $middleware->alias([
+            'role' => \App\Http\Middleware\CheckRole::class,
+             'admin' => \App\Http\Middleware\EnsureAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

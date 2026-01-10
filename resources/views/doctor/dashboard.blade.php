@@ -157,6 +157,43 @@
     </div>
 </div>
 
+<!-- Upcoming Appointments -->
+@if(isset($upcomingAppointments) && $upcomingAppointments->count() > 0)
+<div class="mt-8 animate-slide-up" style="animation-delay: 0.25s">
+    <div class="bg-white rounded-xl shadow">
+        <div class="p-6 border-b">
+            <h2 class="text-xl font-bold text-gray-800">{{ __('Upcoming Appointments') }}</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-ddu-light">
+                    <tr>
+                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">{{ __('Date') }}</th>
+                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">{{ __('Time') }}</th>
+                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">{{ __('Patient') }}</th>
+                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">{{ __('Reason') }}</th>
+                        <th class="py-3 px-6 text-left text-gray-700 font-semibold">{{ __('Status') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($upcomingAppointments as $appointment)
+                    <tr class="border-b hover:bg-gray-50 transition">
+                        <td class="py-4 px-6 text-blue-700 font-medium">{{ $appointment->appointment_date->format('M d, Y') }}</td>
+                        <td class="py-4 px-6">{{ \Carbon\Carbon::parse($appointment->appointment_time)->format('h:i A') }}</td>
+                        <td class="py-4 px-6 font-bold text-gray-800">{{ $appointment->patient->full_name }}</td>
+                        <td class="py-4 px-6">{{ $appointment->reason ?? 'General Consultation' }}</td>
+                        <td class="py-4 px-6">
+                            <span class="bg-yellow-100 text-yellow-800 py-1 px-3 rounded-full text-sm font-medium">{{ ucfirst($appointment->status) }}</span>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@endif
+
 <!-- Recent Patients -->
 <div class="mt-8 animate-slide-up" style="animation-delay: 0.3s">
     <div class="bg-white rounded-xl shadow">

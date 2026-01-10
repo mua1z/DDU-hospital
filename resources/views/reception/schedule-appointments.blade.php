@@ -9,8 +9,51 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Appointment Form -->
         <div class="lg:col-span-2">
+            
+            @if($pendingRequests->count() > 0)
+            <div class="bg-yellow-50 border border-yellow-200 rounded-xl shadow-sm p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold text-yellow-800 flex items-center">
+                        <i class="fas fa-exclamation-circle mr-2"></i> Pending Online Requests
+                    </h2>
+                    <span class="bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-1 rounded-full">{{ $pendingRequests->count() }} Pending</span>
+                </div>
+                
+                <div class="space-y-4">
+                    @foreach($pendingRequests as $request)
+                    <div class="bg-white p-4 rounded-lg border border-yellow-100 shadow-sm">
+                        <div class="flex flex-col md:flex-row justify-between items-start gap-4">
+                            <div>
+                                <h3 class="font-bold text-gray-800">{{ $request->patient->full_name }}</h3>
+                                <p class="text-sm text-gray-600">
+                                    <i class="far fa-calendar-alt mr-1"></i> {{ $request->appointment_date->format('M d, Y') }} 
+                                    <span class="mx-1">|</span> 
+                                    <i class="far fa-clock mr-1"></i> {{ \Carbon\Carbon::parse($request->appointment_time)->format('h:i A') }}
+                                </p>
+                                <p class="text-sm text-gray-500 mt-1 italic">"{{ $request->reason }}"</p>
+                            </div>
+                            
+                            <form action="{{ route('reception.approve-request', $request->id) }}" method="POST" class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                                @csrf
+                                <select name="doctor_id" class="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500" required>
+                                    <option value="">Assign Doctor...</option>
+                                    @foreach($doctors as $doctor)
+                                    <option value="{{ $doctor->id }}">{{ $doctor->name }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-700 transition">
+                                    Approve
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
             <div class="bg-white rounded-xl shadow p-6 mb-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-6">New Appointment</h2>
+                <h2 class="text-xl font-bold text-gray-800 mb-6">New Appointment (Manual)</h2>
                 
                 <form action="{{ route('reception.store-appointment') }}" method="POST" class="space-y-6">
                     @csrf
@@ -123,13 +166,14 @@
                                 {{ $appointment->appointment_date->format('M d, Y') }}<br>
                                 <span class="text-gray-600 text-sm">{{ \Carbon\Carbon::parse($appointment->appointment_time)->format('h:i A') }}</span>
                             </td>
-                            <td class="py-3 px-4">{{ $appointment->doctor->name ?? 'Not Assigned' }}</td>
+                            <td class="py-3 px-4 text-red-500 font-medium">{{ $appointment->doctor->name ?? 'Dr. Unassigned' }}</td>
                             <td class="py-3 px-4">
                                 <span class="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm">{{ ucfirst(str_replace('_', ' ', $appointment->type)) }}</span>
                             </td>
                             <td class="py-3 px-4">
                                 @php
                                     $statusColors = [
+                                        'pending' => 'bg-orange-100 text-orange-800',
                                         'scheduled' => 'bg-yellow-100 text-yellow-800',
                                         'confirmed' => 'bg-green-100 text-green-800',
                                         'in_progress' => 'bg-blue-100 text-blue-800',

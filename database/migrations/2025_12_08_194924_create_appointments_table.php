@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('doctor_id')->nullable()->constrained('users')->nullOnDelete();
             $table->date('appointment_date');
             $table->time('appointment_time');
-            $table->enum('status', ['scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled'])->default('scheduled');
+            $table->enum('status', ['pending', 'scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled'])->default('pending');
             $table->enum('type', ['appointment', 'walk_in'])->default('appointment');
             $table->text('reason')->nullable();
             $table->text('notes')->nullable();

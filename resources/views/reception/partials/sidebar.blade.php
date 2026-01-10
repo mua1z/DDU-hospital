@@ -65,6 +65,46 @@
                     <span>{{ __('Manage Walk-In') }}</span>
                 </a>
             </li>
+            
+            <!-- Reports Section -->
+            <li class="pt-4">
+                <p class="text-purple-300 text-xs uppercase tracking-wider px-3 mb-2">{{ __('Reports') }}</p>
+            </li>
+            <li class="nav-item" x-data="{ open: false }">
+                <button @click="open = !open" class="w-full flex items-center justify-between space-x-3 p-3 rounded-lg bg-green-600 hover:bg-green-700 transition shadow-md">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-file-download"></i>
+                        <span>{{ __('Export Reports') }}</span>
+                    </div>
+                    <i class="fas fa-chevron-down text-xs transition-transform" :class="{ 'rotate-180': open }"></i>
+                </button>
+                <ul x-show="open" x-collapse class="ml-6 mt-2 space-y-1">
+                    <li>
+                        <a href="{{ route('reception.patients.export.pdf') }}" class="flex items-center space-x-2 p-2 text-sm rounded-lg hover:bg-green-700 transition">
+                            <i class="fas fa-file-pdf text-red-400"></i>
+                            <span>{{ __('Patients (PDF)') }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('reception.patients.export.excel') }}" class="flex items-center space-x-2 p-2 text-sm rounded-lg hover:bg-green-700 transition">
+                            <i class="fas fa-file-excel text-green-400"></i>
+                            <span>{{ __('Patients (Excel)') }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('reception.appointments.export.pdf') }}" class="flex items-center space-x-2 p-2 text-sm rounded-lg hover:bg-green-700 transition">
+                            <i class="fas fa-file-pdf text-red-400"></i>
+                            <span>{{ __('Appointments (PDF)') }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('reception.appointments.export.excel') }}" class="flex items-center space-x-2 p-2 text-sm rounded-lg hover:bg-purple-800 hover:bg-opacity-30 transition">
+                            <i class="fas fa-file-excel text-green-400"></i>
+                            <span>{{ __('Appointments (Excel)') }}</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
         </ul>
     </nav>
     

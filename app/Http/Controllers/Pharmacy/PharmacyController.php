@@ -9,6 +9,13 @@ use App\Models\Medication;
 use App\Models\Inventory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\ReportService;
+use App\Exports\InventoryExport;
+use App\Exports\PrescriptionsExport;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Models\User;
+use App\Notifications\LowStockAlert;
+use Illuminate\Support\Facades\Notification;
 
 class PharmacyController extends Controller
 {
@@ -201,6 +208,13 @@ class PharmacyController extends Controller
                     
                     if ($inventory->quantity >= $quantityToDispense) {
                         $inventory->decrement('quantity', $quantityToDispense);
+                        
+                        // FR-20: Trigger Low Stock Alert
+                        if ($inventory->quantity <= $inventory->minimum_stock_level) {
+                            $pharmacists = User::where('role', 'Pharmacist')->get();
+                            Notification::send($pharmacists, new LowStockAlert($inventory));
+                        }
+                        
                         $item->update(['status' => 'dispensed']);
                         $someDispensed = true;
                     } else {
@@ -217,6 +231,13 @@ class PharmacyController extends Controller
 
                     if ($inventory && $inventory->quantity >= $quantityToDispense) {
                         $inventory->decrement('quantity', $quantityToDispense);
+                        
+                        // FR-20: Trigger Low Stock Alert
+                        if ($inventory->quantity <= $inventory->minimum_stock_level) {
+                            $pharmacists = User::where('role', 'Pharmacist')->get();
+                            Notification::send($pharmacists, new LowStockAlert($inventory));
+                        }
+
                         $item->update(['status' => 'dispensed']);
                         $someDispensed = true;
                     } else {
@@ -262,12 +283,12 @@ class PharmacyController extends Controller
     {
         $validated = $request->validate([
             'medication_id' => 'required|exists:medications,id',
-            'batch_number' => 'nullable|string',
-            'quantity' => 'required|integer|min:1',
-            'minimum_stock_level' => 'required|integer|min:0',
+            'batch_number' => ['nullable', 'string', 'alpha_num'], // Alphanumeric Only
+            'quantity' => 'required|integer|min:1', // Number Only
+            'minimum_stock_level' => 'required|integer|min:0', // Number Only
             'expiry_date' => 'nullable|date',
-            'unit_price' => 'nullable|numeric|min:0',
-            'supplier' => 'nullable|string',
+            'unit_price' => ['nullable', 'numeric', 'min:0'], // Number/Decimal Only
+            'supplier' => ['nullable', 'string', 'regex:/^[a-zA-Z0-9\s\.]+$/'], // Text/Number/Spaces
             'received_date' => 'nullable|date',
             'notes' => 'nullable|string',
         ]);
@@ -278,6 +299,42 @@ class PharmacyController extends Controller
 
         return redirect()->route('pharmacy.inventory-management')
             ->with('success', 'Inventory item added successfully.');
+    }
+
+    public function updateInventory(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'medication_id' => 'required|exists:medications,id',
+            'batch_number' => ['nullable', 'string', 'alpha_num'],
+            'quantity' => 'required|integer|min:0',
+            'minimum_stock_level' => 'required|integer|min:0',
+            'expiry_date' => 'nullable|date',
+            'unit_price' => ['nullable', 'numeric', 'min:0'],
+            'supplier' => ['nullable', 'string', 'regex:/^[a-zA-Z0-9\s\.]+$/'],
+            'received_date' => 'nullable|date',
+            'notes' => 'nullable|string',
+        ]);
+
+        $item = Inventory::where('location', 'pharmacy')->findOrFail($id);
+        $item->update($validated);
+
+        // FR-20: Check logic for manual updates too
+        if ($item->quantity <= $item->minimum_stock_level) {
+            $pharmacists = User::where('role', 'Pharmacist')->get();
+            Notification::send($pharmacists, new LowStockAlert($item));
+        }
+
+        return redirect()->route('pharmacy.inventory-management')
+            ->with('success', 'Inventory item updated successfully.');
+    }
+
+    public function destroyInventory($id)
+    {
+        $item = Inventory::where('location', 'pharmacy')->findOrFail($id);
+        $item->delete();
+
+        return redirect()->route('pharmacy.inventory-management')
+            ->with('success', 'Inventory item removed successfully.');
     }
 
     public function checkExpiry()
@@ -297,9 +354,105 @@ class PharmacyController extends Controller
         return view('pharmacy.check-expiry', compact('expiringSoon', 'expired'));
     }
 
-    public function generateReports()
+    public function generateReports(Request $request)
     {
-        // Placeholder for report generation
+        if ($request->has('export')) {
+            $type = $request->get('export');
+            $csvData = "";
+            $filename = "";
+
+            if ($type === 'inventory') {
+                $data = Inventory::with('medication')->where('location', 'pharmacy')->get();
+                $csvData = "ID,Medication,Batch,Quantity,Min Stock,Expiry Date,Supplier,Unit Price\n";
+                foreach ($data as $row) {
+                    $csvData .= "{$row->id},\"{$row->medication->name}\",{$row->batch_number},{$row->quantity},{$row->minimum_stock_level},{$row->expiry_date},\"{$row->supplier}\",{$row->unit_price}\n";
+                }
+                $filename = "inventory_report_" . date('Y-m-d') . ".csv";
+            } elseif ($type === 'prescriptions') {
+                $data = Prescription::with(['patient', 'prescribedBy'])->get();
+                $csvData = "Prescription ID,Patient,Doctor,Date,Status,Notes\n";
+                foreach ($data as $row) {
+                    $csvData .= "{$row->prescription_number},\"{$row->patient->full_name}\",\"{$row->prescribedBy->name}\",{$row->prescription_date},{$row->status},\"{$row->notes}\"\n";
+                }
+                $filename = "prescriptions_report_" . date('Y-m-d') . ".csv";
+            }
+
+            if ($csvData) {
+                return response($csvData)
+                    ->header('Content-Type', 'text/csv')
+                    ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+            }
+        }
+        
         return view('pharmacy.generate-reports');
+    }
+
+    /**
+     * Export inventory as PDF
+     */
+    public function exportInventoryPDF()
+    {
+        $inventory = Inventory::with('medication')
+            ->where('location', 'pharmacy')
+            ->orderBy('medication_id')
+            ->get()
+            ->map(function($item) {
+                return (object) [
+                    'medication_name' => $item->medication->name ?? 'N/A',
+                    'category' => $item->medication->category ?? 'N/A',
+                    'stock' => $item->quantity,
+                    'unit' => $item->medication->unit ?? 'units',
+                    'reorder_level' => $item->minimum_stock_level,
+                    'expiry_date' => $item->expiry_date,
+                ];
+            });
+        
+        $reportService = new ReportService();
+        return $reportService->generatePDF(
+            ['inventory' => $inventory],
+            'reports.inventory-pdf',
+            'pharmacy-inventory-' . now()->format('Y-m-d') . '.pdf'
+        );
+    }
+
+    /**
+     * Export inventory as Excel
+     */
+    public function exportInventoryExcel()
+    {
+        $inventory = Inventory::with('medication')
+            ->where('location', 'pharmacy')
+            ->orderBy('medication_id')
+            ->get()
+            ->map(function($item) {
+                return (object) [
+                    'medication_name' => $item->medication->name ?? 'N/A',
+                    'category' => $item->medication->category ?? 'N/A',
+                    'stock' => $item->quantity,
+                    'unit' => $item->medication->unit ?? 'units',
+                    'reorder_level' => $item->minimum_stock_level,
+                    'expiry_date' => $item->expiry_date,
+                ];
+            });
+        
+        return Excel::download(
+            new InventoryExport($inventory),
+            'pharmacy-inventory-' . now()->format('Y-m-d') . '.xlsx'
+        );
+    }
+
+    /**
+     * Export prescriptions as Excel
+     */
+    public function exportPrescriptionsExcel()
+    {
+        $prescriptions = Prescription::with(['patient', 'prescribedBy', 'items'])
+            ->orderBy('prescription_date', 'desc')
+            ->get();
+        
+        return Excel::download(
+            new PrescriptionsExport($prescriptions),
+            'pharmacy-prescriptions-' . now()->format('Y-m-d') . '.xlsx'
+        );
     }
 }

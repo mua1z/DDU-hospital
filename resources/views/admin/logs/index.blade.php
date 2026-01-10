@@ -3,65 +3,108 @@
 @section('title', 'System Logs - Admin Dashboard')
 
 @section('content')
-<div class="max-w-6xl mx-auto animate-slide-up">
+<div class="max-w-7xl mx-auto animate-slide-up">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col md:flex-row items-center justify-between mb-6">
         <div>
-            <h2 class="text-2xl font-bold text-gray-800">System Logs</h2>
-            <p class="text-gray-500 text-sm">View recent application logs (Laravel.log)</p>
+            <h2 class="text-2xl font-bold text-gray-800">System Activity Logs</h2>
+            <p class="text-gray-500 text-sm">Monitor user activities and system events (Database)</p>
         </div>
-        <div class="flex space-x-3">
-            <button onclick="location.reload()" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg shadow-sm transition flex items-center">
+        <div class="flex space-x-3 mt-4 md:mt-0">
+            <form method="GET" class="flex">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search action or IP..." class="border border-gray-300 rounded-l-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <button type="submit" class="bg-gray-100 border border-gray-300 border-l-0 rounded-r-lg px-4 text-gray-600 hover:bg-gray-200">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+            <a href="{{ route('admin.logs.index') }}" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg shadow-sm transition flex items-center">
                 <i class="fas fa-sync-alt mr-2 text-gray-500"></i> Refresh
-            </button>
-            <button class="bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 px-4 py-2 rounded-lg shadow-sm transition flex items-center opacity-50 cursor-not-allowed" title="Not implemented in demo">
-                <i class="fas fa-trash-alt mr-2"></i> Clear Logs
-            </button>
+            </a>
         </div>
     </div>
 
-    <!-- Logs Viewer -->
-    <div class="bg-gray-900 rounded-xl shadow-lg border border-gray-800 overflow-hidden text-gray-300 font-mono text-xs md:text-sm">
-        <div class="bg-gray-800 px-4 py-3 border-b border-gray-700 flex justify-between items-center">
-            <span class="font-semibold text-gray-400">storage/logs/laravel.log (Last 100 lines)</span>
-            <div class="flex space-x-2">
-                <span class="w-3 h-3 rounded-full bg-red-500"></span>
-                <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
-                <span class="w-3 h-3 rounded-full bg-green-500"></span>
-            </div>
-        </div>
-        
-        <div class="p-4 overflow-x-auto h-[600px] overflow-y-auto custom-scrollbar">
-            <table class="w-full">
-                <tbody>
-                    @forelse($logs as $index => $log)
-                        @php
-                            $rowClass = $index % 2 == 0 ? 'bg-gray-900' : 'bg-gray-800/30';
-                            $levelColor = match(strtoupper($log['level'])) {
-                                'ERROR' => 'text-red-400',
-                                'CRITICAL' => 'text-red-500 font-bold',
-                                'WARNING' => 'text-yellow-400',
-                                'INFO' => 'text-blue-400',
-                                'DEBUG' => 'text-green-400',
-                                default => 'text-gray-400'
-                            };
-                        @endphp
-                        <tr class="hover:bg-gray-800 transition">
-                            <td class="align-top py-1 pr-4 text-gray-600 select-none text-right w-12">{{ $index + 1 }}</td>
-                            <td class="align-top py-1 pr-4 text-gray-500 whitespace-nowrap">[{{ $log['timestamp'] }}]</td>
-                            <td class="align-top py-1 pr-4 {{ $levelColor }} font-bold whitespace-nowrap">{{ $log['level'] }}</td>
-                            <td class="align-top py-1 text-gray-300 break-all">{{ $log['message'] }}</td>
+    <!-- Logs Table -->
+    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-200 text-xs uppercase text-gray-500 font-semibold">
+                        <th class="px-6 py-4">Time</th>
+                        <th class="px-6 py-4">User</th>
+                        <th class="px-6 py-4">Action (Subject)</th>
+                        <th class="px-6 py-4">Method / URL</th>
+                        <th class="px-6 py-4">IP Address</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm divide-y divide-gray-100">
+                    @forelse($logs as $log)
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 text-gray-500 whitespace-nowrap">
+                                {{ $log->created_at->format('M d, H:i:s') }}
+                                <span class="text-xs block text-gray-400">{{ $log->created_at->diffForHumans() }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                @if($log->user)
+                                    <div class="flex items-center">
+                                        <div class="h-8 w-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold text-xs mr-2">
+                                            {{ substr($log->user->name, 0, 1) }}
+                                        </div>
+                                        <div>
+                                            <div class="font-medium text-gray-900">{{ $log->user->name }}</div>
+                                            <div class="text-xs text-gray-500">{{ $log->user->dduc_id }} ({{ $log->user->role }})</div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="flex items-center">
+                                        <div class="h-8 w-8 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-bold text-xs mr-2">
+                                            <i class="fas fa-robot"></i>
+                                        </div>
+                                        <div>
+                                            <div class="font-medium text-gray-900">System / Guest</div>
+                                            <div class="text-xs text-gray-400">Automated or Unauthenticated</div>
+                                        </div>
+                                    </div>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="font-medium text-gray-700">{{ $log->subject }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <span class="px-2 py-0.5 rounded text-xs font-bold mr-2
+                                        {{ $log->method === 'POST' ? 'bg-blue-100 text-blue-700' : '' }}
+                                        {{ $log->method === 'PUT' || $log->method === 'PATCH' ? 'bg-orange-100 text-orange-700' : '' }}
+                                        {{ $log->method === 'DELETE' ? 'bg-red-100 text-red-700' : '' }}
+                                        {{ $log->method === 'GET' ? 'bg-green-100 text-green-700' : '' }}
+                                    ">
+                                        {{ $log->method }}
+                                    </span>
+                                    <span class="text-gray-500 truncate max-w-xs" title="{{ $log->url }}">{{ Str::limit($log->url, 40) }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-gray-500 font-mono text-xs">
+                                {{ $log->ip }}
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="p-8 text-center text-gray-500">
-                                <i class="fas fa-check-circle text-4xl mb-3 text-green-500"></i>
-                                <p>Log file is empty or missing.</p>
+                            <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                <div class="flex flex-col items-center">
+                                    <div class="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                                        <i class="fas fa-history text-gray-400 text-xl"></i>
+                                    </div>
+                                    <p>No system activity logs found.</p>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50">
+            {{ $logs->appends(request()->query())->links() }}
         </div>
     </div>
 </div>

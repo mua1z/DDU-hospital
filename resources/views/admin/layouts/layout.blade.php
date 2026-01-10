@@ -6,8 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'DDU Clinics - Admin')</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -21,7 +22,7 @@
                         'lab-dark': '#4c1d95',
                     },
                     fontFamily: {
-                        'poppins': ['Poppins', 'sans-serif'],
+                        'sans': ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
                     },
                     animation: {
                         'fade-in': 'fadeIn 0.5s ease-in-out',
@@ -33,6 +34,11 @@
         }
     </script>
     <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 15px;
+            line-height: 1.6;
+        }
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -69,7 +75,7 @@
     </style>
     @yield('styles')
 </head>
-<body class="font-poppins bg-gray-50">
+<body class="font-sans bg-gray-50">
     <!-- Mobile Menu Toggle Button -->
     <button id="menuToggle" class="lg:hidden fixed top-4 left-4 z-50 p-3 rounded-lg bg-purple-700 text-white shadow-lg">
         <i class="fas fa-bars text-xl"></i>

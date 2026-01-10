@@ -7,6 +7,9 @@ use App\Models\LabRequest;
 use App\Models\LabResult;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Services\ReportService;
+use App\Exports\LabResultsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LabController extends Controller
 {
@@ -77,8 +80,9 @@ class LabController extends Controller
     {
         $requests = LabRequest::with(['patient', 'requestedBy'])
             ->whereIn('status', ['pending', 'in_progress', 'completed'])
-            ->orderBy('priority', 'desc')
-            ->orderBy('requested_date', 'desc')
+            ->orderBy('requested_date', 'desc') // Order by date (newest first)
+            ->orderBy('created_at', 'desc') // Then by time (newest first)
+            ->orderBy('priority', 'desc') // Then by priority
             ->get();
 
         $selectedRequest = null;
@@ -99,10 +103,10 @@ class LabController extends Controller
     {
         $validated = $request->validate([
             'lab_request_id' => 'required|exists:lab_requests,id',
-            'results' => 'nullable|string',
-            'test_values' => 'nullable|json',
-            'findings' => 'nullable|string',
-            'recommendations' => 'nullable|string',
+            'results' => 'nullable|string', // Text/Mixed
+            'test_values' => 'nullable|json', // JSON format
+            'findings' => 'nullable|string', // Text/Mixed  
+            'recommendations' => 'nullable|string', // Text/Mixed
             'status' => 'required|in:pending,completed,critical',
             'test_date' => 'required|date',
             'result_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
@@ -164,5 +168,37 @@ class LabController extends Controller
     {
         // Placeholder for quality control
         return view('lab.quality-control');
+    }
+
+    /**
+     * Export lab results as PDF
+     */
+    public function exportResultsPDF()
+    {
+        $results = LabResult::with(['patient', 'labRequest', 'processedBy'])
+            ->orderBy('test_date', 'desc')
+            ->get();
+        
+        $reportService = new ReportService();
+        return $reportService->generatePDF(
+            ['results' => $results],
+            'reports.lab-results-pdf',
+            'lab-results-' . now()->format('Y-m-d') . '.pdf'
+        );
+    }
+
+    /**
+     * Export lab results as Excel
+     */
+    public function exportResultsExcel()
+    {
+        $results = LabResult::with(['patient', 'labRequest', 'processedBy'])
+            ->orderBy('test_date', 'desc')
+            ->get();
+        
+        return Excel::download(
+            new LabResultsExport($results),
+            'lab-results-' . now()->format('Y-m-d') . '.xlsx'
+        );
     }
 }
