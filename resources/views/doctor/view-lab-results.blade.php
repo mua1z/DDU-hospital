@@ -7,22 +7,67 @@
 @section('content')
 <div class="animate-slide-up">
     <!-- Filters and Search -->
+    <!-- Filters and Search -->
     <div class="bg-white rounded-xl shadow p-6 mb-6">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div class="flex items-center space-x-4">
-                <button class="px-4 py-2 bg-ddu-primary text-white rounded-lg font-medium">All Results</button>
-                <button class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Pending</button>
-                <button class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Completed</button>
-                <button class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Abnormal</button>
+        <div class="flex flex-col gap-4">
+            <!-- Filter Groups -->
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Time Filters -->
+                <div class="flex items-center space-x-2 mr-4 border-r pr-4 border-gray-200">
+                    <a href="{{ request()->fullUrlWithQuery(['period' => 'today']) }}" 
+                       class="px-3 py-1.5 rounded-lg text-sm font-medium transition {{ request('period') === 'today' ? 'bg-ddu-primary text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+                        Today
+                    </a>
+                    <a href="{{ request()->fullUrlWithQuery(['period' => 'tomorrow']) }}" 
+                       class="px-3 py-1.5 rounded-lg text-sm font-medium transition {{ request('period') === 'tomorrow' ? 'bg-ddu-primary text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+                        Tomorrow
+                    </a>
+                    <a href="{{ request()->fullUrlWithQuery(['period' => 'this_week']) }}" 
+                       class="px-3 py-1.5 rounded-lg text-sm font-medium transition {{ request('period') === 'this_week' ? 'bg-ddu-primary text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+                        This Week
+                    </a>
+                </div>
+
+                <!-- Status Filters -->
+                <div class="flex items-center space-x-2">
+                    <a href="{{ route('doctor.view-lab-results', request()->except(['status', 'period', 'page'])) }}" 
+                       class="px-3 py-1.5 rounded-lg text-sm font-medium transition {{ !request('status') && !request('period') ? 'bg-gray-800 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+                        All Results
+                    </a>
+                    <a href="{{ request()->fullUrlWithQuery(['status' => 'pending']) }}" 
+                       class="px-3 py-1.5 rounded-lg text-sm font-medium transition {{ request('status') === 'pending' ? 'bg-yellow-500 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+                        Pending
+                    </a>
+                    <a href="{{ request()->fullUrlWithQuery(['status' => 'completed']) }}" 
+                       class="px-3 py-1.5 rounded-lg text-sm font-medium transition {{ request('status') === 'completed' ? 'bg-green-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+                        Completed
+                    </a>
+                    <a href="{{ request()->fullUrlWithQuery(['status' => 'abnormal']) }}" 
+                       class="px-3 py-1.5 rounded-lg text-sm font-medium transition {{ request('status') === 'abnormal' ? 'bg-red-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+                        Abnormal
+                    </a>
+                </div>
             </div>
             
-            <div class="flex items-center space-x-4">
-                <div class="relative">
-                    <input type="text" placeholder="Search by patient or test..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ddu-primary">
+            <!-- Search Bar -->
+            <form action="{{ route('doctor.view-lab-results') }}" method="GET" class="flex flex-col md:flex-row gap-4">
+                <!-- Preserve Filters -->
+                @if(request('status')) <input type="hidden" name="status" value="{{ request('status') }}"> @endif
+                @if(request('period')) <input type="hidden" name="period" value="{{ request('period') }}"> @endif
+
+                <div class="relative flex-1">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by patient or test..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ddu-primary">
                     <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                 </div>
-                <input type="date" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ddu-primary">
-            </div>
+                <div class="flex gap-2">
+                    <input type="date" name="date" value="{{ request('date') }}" onchange="this.form.submit()" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ddu-primary">
+                    @if(request()->anyFilled(['search', 'date', 'status', 'period']))
+                        <a href="{{ route('doctor.view-lab-results') }}" class="px-4 py-2 text-gray-500 hover:text-red-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition" title="Clear All Filters">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    @endif
+                </div>
+            </form>
         </div>
     </div>
     
@@ -115,15 +160,30 @@
                                         $rawResult = strtolower(trim((string) ($result->results ?? '')));
                                         $simpleResult = $rawResult === 'positive' ? 'positive'
                                             : ($rawResult === 'negative' ? 'negative' : null);
-                                        $resultClass = match($simpleResult) {
-                                            'positive' => 'bg-red-100 text-red-800',
-                                            'negative' => 'bg-green-100 text-green-800',
-                                            default => 'bg-gray-100 text-gray-700',
-                                        };
-                                        $label = $simpleResult ? ucfirst($simpleResult) : ($result->results ?? 'Null');
+                                        
+                                        if ($simpleResult) {
+                                            $resultClass = match($simpleResult) {
+                                                'positive' => 'bg-red-100 text-red-800',
+                                                'negative' => 'bg-green-100 text-green-800',
+                                                default => 'bg-gray-100 text-gray-700',
+                                            };
+                                            $label = ucfirst($simpleResult);
+                                        } elseif (!empty($result->results)) {
+                                            $resultClass = 'bg-gray-100 text-gray-700';
+                                            $label = Str::limit($result->results, 20);
+                                        } elseif ($result->result_file) {
+                                            $resultClass = 'bg-blue-100 text-blue-800';
+                                            $label = 'File Attached';
+                                        } else {
+                                            $resultClass = 'bg-gray-100 text-gray-400';
+                                            $label = 'Pending';
+                                        }
                                     @endphp
                                     <td class="px-4 py-3 align-top">
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {{ $resultClass }}">
+                                            @if($label === 'File Attached')
+                                                <i class="fas fa-paperclip mr-1"></i>
+                                            @endif
                                             {{ $label }}
                                         </span>
                                     </td>
@@ -131,7 +191,7 @@
                                     <td class="px-4 py-3 align-top text-right">
                                         <div class="flex justify-end space-x-2">
                                             @if($result->result_file)
-                                                <a href="{{ asset('storage/'.$result->result_file) }}"
+                                                <a href="{{ Storage::disk('public')->url($result->result_file) }}"
                                                    target="_blank"
                                                    class="text-blue-600 hover:text-blue-800 transition" title="View PDF">
                                                     <i class="fas fa-file-pdf"></i>

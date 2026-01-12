@@ -84,7 +84,7 @@
                                     </div>
                                     <input id="name" type="text" name="name" value="{{ old('name') }}" required
                                            class="pl-10 w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none transition duration-200"
-                                           placeholder="e.g. Dr. Sarah Smith">
+                                           placeholder="e.g. Dr. Adnan Abdi">
                                 </div>
                                 @error('name')
                                     <p class="text-red-500 text-xs mt-1 flex items-center animate-pulse"><i class="fas fa-exclamation-circle mr-1"></i> {{ $message }}</p>
@@ -94,7 +94,7 @@
                     </div>
 
                     <!-- Section: Access -->
-                    <div class="mb-8">
+                    <div class="mb-8" x-data="{ role: '{{ old('role', 'User') }}' }">
                         <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">
                             <i class="fas fa-lock mr-1"></i> Access & Security
                         </h3>
@@ -106,19 +106,36 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i class="fas fa-user-tag text-gray-400"></i>
                                 </div>
-                                <select id="role" name="role" class="pl-10 w-full px-4 py-3 rounded-lg border border-gray-200 bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none transition appearance-none cursor-pointer">
-                                    <option value="User" {{ old('role') == 'User' ? 'selected' : '' }}>User (Standard)</option>
-                                    <option value="Doctors" {{ old('role') == 'Doctors' ? 'selected' : '' }}>Doctor</option>
-                                    <option value="Receptions" {{ old('role') == 'Receptions' ? 'selected' : '' }}>Receptionist</option>
-                                    <option value="Laboratory" {{ old('role') == 'Laboratory' ? 'selected' : '' }}>Lab Technician</option>
-                                    <option value="Pharmacist" {{ old('role') == 'Pharmacist' ? 'selected' : '' }}>Pharmacist</option>
-                                    <option value="Admin" {{ old('role') == 'Admin' ? 'selected' : '' }}>Administrator</option>
-                                    <option value="Patient" {{ old('role') == 'Patient' ? 'selected' : '' }}>Patient</option>
+                                <select id="role" name="role" x-model="role" class="pl-10 w-full px-4 py-3 rounded-lg border border-gray-200 bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none transition appearance-none cursor-pointer">
+                                    <option value="User">User (Standard)</option>
+                                    <option value="Doctors">Doctor</option>
+                                    <option value="Receptions">Receptionist</option>
+                                    <option value="Laboratory">Lab Technician</option>
+                                    <option value="Pharmacist">Pharmacist</option>
+                                    <option value="Admin">Administrator</option>
+                                    <option value="Patient">Patient</option>
                                 </select>
                                 <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
                                     <i class="fas fa-chevron-down text-xs"></i>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Room Number (Doctors Only) -->
+                        <div class="mb-6" x-show="role === 'Doctors'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform -translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0">
+                            <label for="room_number" class="block text-sm font-medium text-gray-700 mb-2">Room Number</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-door-open text-gray-400"></i>
+                                </div>
+                                <input id="room_number" type="text" name="room_number" value="{{ old('room_number') }}" 
+                                       class="pl-10 w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 focus:bg-white focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none transition duration-200"
+                                       placeholder="e.g. 101">
+                            </div>
+                            @error('room_number')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                            <p class="text-xs text-gray-500 mt-1">Assign a consultation room for this doctor.</p>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -39,7 +39,10 @@
                 <a href="{{ route('pharmacy.view-prescriptions') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-prescription"></i>
                     <span>{{ __('View Prescriptions') }}</span>
-                    <span class="ml-auto bg-purple-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">8</span>
+                    @php $pendingPrescriptions = \App\Models\Prescription::where('status', 'pending')->count(); @endphp
+                    @if($pendingPrescriptions > 0)
+                    <span class="ml-auto bg-purple-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">{{ $pendingPrescriptions }}</span>
+                    @endif
                 </a>
             </li>
             <li class="nav-item">
@@ -58,7 +61,10 @@
                 <a href="{{ route('pharmacy.check-expiry') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-calendar-times"></i>
                     <span>{{ __('Check Expiry') }}</span>
-                    <span class="ml-auto bg-yellow-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center blink-warning">3</span>
+                    @php $expiringSoon = \App\Models\Inventory::where('location', 'pharmacy')->whereBetween('expiry_date', [now(), now()->addDays(30)])->count(); @endphp
+                    @if($expiringSoon > 0)
+                    <span class="ml-auto bg-yellow-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center blink-warning">{{ $expiringSoon }}</span>
+                    @endif
                 </a>
             </li>
             <!-- Reports Section -->
@@ -73,23 +79,11 @@
                     </div>
                     <i class="fas fa-chevron-down text-xs transition-transform" :class="{ 'rotate-180': open }"></i>
                 </button>
-                <ul x-show="open" x-collapse class="ml-6 mt-2 space-y-1">
+                <ul x-show="open" x-collapse class="ml-6 mt-2 space-y-1 bg-green-700 rounded-lg p-2">
                     <li>
-                        <a href="{{ route('pharmacy.inventory.export.pdf') }}" class="flex items-center space-x-2 p-2 text-sm rounded-lg hover:bg-green-700 transition">
+                        <a href="{{ route('pharmacy.inventory.export.pdf') }}" class="flex items-center space-x-2 p-2 text-sm rounded-lg bg-green-600 transition">
                             <i class="fas fa-file-pdf text-red-400"></i>
                             <span>{{ __('Inventory (PDF)') }}</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('pharmacy.inventory.export.excel') }}" class="flex items-center space-x-2 p-2 text-sm rounded-lg hover:bg-green-700 transition">
-                            <i class="fas fa-file-excel text-green-400"></i>
-                            <span>{{ __('Inventory (Excel)') }}</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('pharmacy.prescriptions.export.excel') }}" class="flex items-center space-x-2 p-2 text-sm rounded-lg hover:bg-green-700 transition">
-                            <i class="fas fa-file-excel text-green-400"></i>
-                            <span>{{ __('Prescriptions (Excel)') }}</span>
                         </a>
                     </li>
                 </ul>

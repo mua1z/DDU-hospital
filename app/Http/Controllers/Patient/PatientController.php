@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Patient;
 use App\Models\Appointment;
 use App\Models\MedicalRecord;
+use App\Models\Prescription;
+use App\Models\LabResult;
 use Illuminate\Support\Facades\Auth;
 
 class PatientController extends Controller
@@ -60,6 +62,89 @@ class PatientController extends Controller
             ->paginate(10);
 
         return view('patient.my-appointments', compact('patient', 'appointments'));
+    }
+
+    public function viewPrescriptions()
+    {
+        $user = Auth::user();
+        $patient = Patient::where('user_id', $user->id)->firstOrFail();
+
+        $prescriptions = Prescription::with(['prescribedBy', 'items.medication'])
+            ->where('patient_id', $patient->id)
+            ->orderBy('prescription_date', 'desc')
+            ->paginate(10);
+
+        return view('patient.prescriptions', compact('patient', 'prescriptions'));
+    }
+
+    public function viewPrescriptionDetails($id)
+    {
+        $user = Auth::user();
+        $patient = Patient::where('user_id', $user->id)->firstOrFail();
+
+        $prescription = Prescription::with(['prescribedBy', 'items.medication', 'appointment'])
+            ->where('patient_id', $patient->id)
+            ->findOrFail($id);
+
+        return view('patient.prescription-details', compact('patient', 'prescription'));
+    }
+
+    public function viewLabResults()
+    {
+        $user = Auth::user();
+        $patient = Patient::where('user_id', $user->id)->firstOrFail();
+
+        $labResults = LabResult::with(['labRequest.requestedBy', 'processedBy'])
+            ->where('patient_id', $patient->id)
+            ->orderBy('test_date', 'desc')
+            ->paginate(10);
+
+        return view('patient.lab-results', compact('patient', 'labResults'));
+    }
+
+    public function viewLabResultDetails($id)
+    {
+        $user = Auth::user();
+        $patient = Patient::where('user_id', $user->id)->firstOrFail();
+
+        $result = LabResult::with(['labRequest.requestedBy', 'processedBy'])
+            ->where('patient_id', $patient->id)
+            ->findOrFail($id);
+
+        return view('patient.lab-result-details', compact('patient', 'result'));
+    }
+
+    public function editProfile()
+    {
+        $user = Auth::user();
+        $patient = Patient::where('user_id', $user->id)->firstOrFail();
+        
+        return view('patient.edit-profile', compact('patient'));
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+        $patient = Patient::where('user_id', $user->id)->firstOrFail();
+
+        $validated = $request->validate([
+            'full_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\.]+$/'],
+            'phone' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\+\-\s]+$/'],
+            'email' => 'nullable|email|max:255',
+            'address' => 'nullable|string',
+            'emergency_contact_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\.]+$/'],
+            'emergency_contact_phone' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\+\-\s]+$/'],
+        ]);
+
+        $patient->update($validated);
+
+        // Update user name if changed
+        if ($user->name !== $validated['full_name']) {
+            $user->update(['name' => $validated['full_name']]);
+        }
+
+        return redirect()->route('patient.dashboard')
+            ->with('success', 'Profile updated successfully.');
     }
 
     // Placeholder for routes that exist in web.php but not explicitly requested, 

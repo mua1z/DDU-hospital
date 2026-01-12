@@ -25,7 +25,7 @@
                 <a href="#about" class="hover:underline hover:text-sky-200 transition">{{ __('About') }}</a>
                 <a href="#services" class="hover:underline hover:text-sky-200 transition">{{ __('Services') }}</a>
                 <a href="#contact" class="hover:underline hover:text-sky-200 transition">{{ __('Contact') }}</a>
-                
+
                 <!-- Language Switcher -->
                 <!-- Language Switcher -->
                 <div x-data="{ open: false }" class="relative z-50">
@@ -38,8 +38,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
-                    <div x-show="open" 
-                         @click.away="open = false" 
+                    <div x-show="open"
+                         @click.away="open = false"
                          x-transition:enter="transition ease-out duration-200"
                          x-transition:enter-start="opacity-0 transform scale-95"
                          x-transition:enter-end="opacity-100 transform scale-100"
@@ -47,7 +47,7 @@
                          x-transition:leave-start="opacity-100 transform scale-100"
                          x-transition:leave-end="opacity-0 transform scale-95"
                          class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl py-2 border border-gray-100 z-50">
-                         
+
                         <div class="px-4 py-2 border-b border-gray-100 mb-1">
                             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Select Language</p>
                         </div>
@@ -63,7 +63,7 @@
                                 </svg>
                             @endif
                         </a>
-                        
+
                         <a href="{{ route('lang.switch', 'am') }}" class="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">
                             <div class="flex items-center">
                                 <span class="w-6 text-center text-lg mr-2">🇪🇹</span>
@@ -75,7 +75,7 @@
                                 </svg>
                             @endif
                         </a>
-                        
+
                         <a href="{{ route('lang.switch', 'om') }}" class="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">
                             <div class="flex items-center">
                                 <span class="w-6 text-center text-lg mr-2">🇪🇹</span>
@@ -105,13 +105,21 @@
 
     <main>
         <!-- Hero Section -->
-        <section id="home" class="bg-gradient-to-r from-sky-100 to-emerald-100">
-            <div class="max-w-6xl mx-auto px-6 py-24 text-center">
-                <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">{{ __('Welcome to DDU Student Clinic') }}</h1>
-                <p class="text-slate-700 mb-8 text-lg">{{ __('Accessible, Student-Centered Healthcare for Every Need') }}</p>
+        <section id="home" class="relative overflow-hidden min-h-screen flex items-center">
+            <!-- Background Image -->
+            <div class="absolute inset-0 z-0">
+                <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" style="background-image: url('/images/hero-1.png')"></div>
+                <!-- Light Overlay -->
+                <div class="absolute inset-0 bg-white/70 z-10"></div>
+            </div>
+
+            <!-- Content -->
+            <div class="relative z-20 max-w-6xl mx-auto px-6 text-center">
+                <h1 class="text-4xl md:text-6xl font-extrabold mb-6 text-black tracking-tight">{{ __('Welcome to DDU Student Clinic') }}</h1>
+                <p class="text-gray-900 mb-10 text-xl md:text-2xl max-w-3xl mx-auto font-medium">{{ __('Accessible, Student-Centered Healthcare for Every Need') }}</p>
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <a href="{{ route('reception.schedule-appointments') }}" class="px-8 py-3 bg-sky-800 text-white rounded-lg shadow-lg hover:bg-sky-700 transition transform hover:-translate-y-1">{{ __('Book Appointment') }}</a>
-                    <a href="#services" class="px-8 py-3 bg-sky-700 text-white rounded-lg shadow-lg hover:bg-sky-600 transition transform hover:-translate-y-1">{{ __('View Services') }}</a>
+                    <a href="{{ route('reception.schedule-appointments') }}" class="px-8 py-4 bg-teal-600 text-white rounded-lg shadow-xl hover:bg-teal-500 transition transform hover:-translate-y-1 font-semibold text-lg">{{ __('Book Appointment') }}</a>
+                    <a href="#services" class="px-8 py-4 bg-black/80 text-white rounded-lg shadow-lg hover:bg-black transition transform hover:-translate-y-1 font-semibold text-lg">{{ __('View Services') }}</a>
                 </div>
             </div>
         </section>
@@ -149,7 +157,7 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                     <div>
-                        <img src="https://images.unsplash.com/photo-1586773860418-dc22f8b874bc?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Medical Team" class="rounded-lg shadow-lg">
+                        <img src="/images/medical-team.png" alt="Medical Team" class="w-full h-auto rounded-lg shadow-lg object-cover">
                     </div>
                     <div>
                         <h3 class="text-2xl font-semibold text-slate-800 mb-4">{{ __('Our Mission & Vision') }}</h3>
@@ -198,7 +206,7 @@
                         <h3 class="text-xl font-semibold text-slate-800 mb-3">{{ __('Primary Care') }}</h3>
                         <p class="text-slate-600">{{ __('General check-ups, consultations, and treatment for common illnesses and injuries.') }}</p>
                     </div>
-                    
+
                     <!-- Service 2 -->
                     <div class="bg-slate-50 rounded-lg p-6 shadow-sm hover:shadow-md transition">
                         <div class="w-12 h-12 bg-sky-100 rounded-lg flex items-center justify-center mb-4">
@@ -209,7 +217,7 @@
                         <h3 class="text-xl font-semibold text-slate-800 mb-3">{{ __('Laboratory Services') }}</h3>
                         <p class="text-slate-600">{{ __('Blood tests, urine analysis, and other diagnostic laboratory services.') }}</p>
                     </div>
-                    
+
                     <!-- Service 3 -->
                     <div class="bg-slate-50 rounded-lg p-6 shadow-sm hover:shadow-md transition">
                         <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">
@@ -220,7 +228,7 @@
                         <h3 class="text-xl font-semibold text-slate-800 mb-3">{{ __('Emergency Care') }}</h3>
                         <p class="text-slate-600">{{ __('24/7 emergency medical services for urgent health concerns.') }}</p>
                     </div>
-                    
+
                     <!-- Service 4 -->
                     <div class="bg-slate-50 rounded-lg p-6 shadow-sm hover:shadow-md transition">
                         <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
@@ -231,7 +239,7 @@
                         <h3 class="text-xl font-semibold text-slate-800 mb-3">{{ __('Health Education') }}</h3>
                         <p class="text-slate-600">{{ __('Workshops, counseling, and resources for maintaining optimal health.') }}</p>
                     </div>
-                    
+
                     <!-- Service 5 -->
                     <div class="bg-slate-50 rounded-lg p-6 shadow-sm hover:shadow-md transition">
                         <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center mb-4">
@@ -242,7 +250,7 @@
                         <h3 class="text-xl font-semibold text-slate-800 mb-3">{{ __('Vaccinations') }}</h3>
                         <p class="text-slate-600">{{ __('Immunization services and travel vaccinations as needed.') }}</p>
                     </div>
-                    
+
                     <!-- Service 6 -->
                     <div class="bg-slate-50 rounded-lg p-6 shadow-sm hover:shadow-md transition">
                         <div class="w-12 h-12 bg-rose-100 rounded-lg flex items-center justify-center mb-4">
@@ -321,27 +329,47 @@
                             </ul>
                         </div>
                     </div>
-                    
+
                     <div class="bg-white rounded-lg p-8 shadow-sm">
                         <h3 class="text-2xl font-semibold text-slate-800 mb-6">{{ __('Send us a Message') }}</h3>
-                        <form class="space-y-4">
+                        
+                        @if(session('success'))
+                            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
+                                <p class="font-bold">Message Sent!</p>
+                                <p>{{ session('success') }}</p>
+                            </div>
+                        @endif
+
+                        @if($errors->any())
+                            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+                                <p class="font-bold">Errors</p>
+                                <ul class="list-disc list-inside">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+                        <form action="{{ route('contact.store') }}" method="POST" class="space-y-4">
+                            @csrf
                             <div>
                                 <label class="block text-slate-700 mb-2">{{ __('Full Name') }}</label>
-                                <input type="text" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <input type="text" name="full_name" value="{{ old('full_name') }}" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" required>
                             </div>
                             <div>
                                 <label class="block text-slate-700 mb-2">{{ __('Student ID') }}</label>
-                                <input type="text" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <input type="text" name="student_id" value="{{ old('student_id') }}" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" required>
                             </div>
                             <div>
                                 <label class="block text-slate-700 mb-2">{{ __('Email Address') }}</label>
-                                <input type="email" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                <input type="email" name="email" value="{{ old('email') }}" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" required>
                             </div>
                             <div>
                                 <label class="block text-slate-700 mb-2">{{ __('Message') }}</label>
-                                <textarea rows="4" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"></textarea>
+                                <textarea name="message" rows="4" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" required>{{ old('message') }}</textarea>
                             </div>
-                            <button type="submit" class="w-full py-3 bg-teal-700 text-white rounded-lg hover:bg-teal-600 transition">{{ __('Send Message') }}</button>
+                            <button type="submit" class="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">{{ __('Send Message') }}</button>
                         </form>
                     </div>
                 </div>
@@ -349,16 +377,22 @@
         </section>
 
         <!-- CTA Section -->
-        <section class="bg-gradient-to-r from-teal-800 to-sky-800 text-white py-12">
-            <div class="max-w-6xl mx-auto px-6 text-center">
-                <h2 class="text-3xl font-bold mb-4">{{ __('Ready to Schedule Your Visit?') }}</h2>
-                <p class="mb-8 max-w-2xl mx-auto">{{ __('Book an appointment online or visit our clinic during operating hours. Emergency services available 24/7.') }}</p>
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <a href="{{ route('reception.schedule-appointments') }}" class="px-8 py-3 bg-white text-teal-800 font-semibold rounded-lg shadow-lg hover:bg-slate-100 transition">{{ __('Book Online Now') }}</a>
-                    <a href="#contact" class="px-8 py-3 bg-transparent border-2 border-white rounded-lg hover:bg-white/10 transition">{{ __('Contact Us') }}</a>
-                </div>
-            </div>
-        </section>
+       <section class="bg-gradient-to-r from-teal-800 to-sky-800 py-12">
+    <div class="max-w-6xl mx-auto px-6 text-center">
+        <h2 class="text-3xl font-bold mb-4 text-slate-900">{{ __('Ready to Schedule Your Visit?') }}</h2>
+        
+        <p class="mb-8 max-w-2xl mx-auto text-black font-medium">
+            {{ __('Book an appointment online or visit our clinic during operating hours. Emergency services available 24/7.') }}
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="{{ route('reception.schedule-appointments') }}" class="px-8 py-3 bg-sky-800 text-white rounded-lg shadow-lg hover:bg-sky-700 transition transform hover:-translate-y-1">
+                {{ __('Book Online Now') }}
+            </a>
+            
+        </div>
+    </div>
+</section>
     </main>
 
     <footer class="bg-teal-900 text-white">

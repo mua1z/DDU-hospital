@@ -6,6 +6,32 @@
 
 @section('content')
 <div class="animate-slide-up">
+    <!-- Notifications -->
+    @if(session('success'))
+    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-r shadow-sm" role="alert">
+        <p class="font-bold">Success</p>
+        <p>{{ session('success') }}</p>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-r shadow-sm" role="alert">
+        <p class="font-bold">Error</p>
+        <p>{{ session('error') }}</p>
+    </div>
+    @endif
+
+    @if($errors->any())
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-r shadow-sm" role="alert">
+        <p class="font-bold">Whoops! Something went wrong.</p>
+        <ul class="list-disc list-inside text-sm">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
     <!-- Processing Queue -->
     <div class="bg-white rounded-xl shadow p-6 mb-6">
         <h2 class="text-xl font-bold text-gray-800 mb-4">Tests Ready for Results</h2>
@@ -91,6 +117,10 @@
                 </tbody>
             </table>
         </div>
+        
+        <div class="mt-4 pt-4 border-t">
+            {{ $requests->links() }}
+        </div>
     </div>
 
     <!-- Results Entry Form -->
@@ -137,8 +167,11 @@
                 </div>
 
                 <div>
-                    <label class="block text-gray-700 text-sm font-medium mb-2">Test Values (JSON, optional)</label>
-                    <textarea name="test_values" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lab-primary" rows="4" placeholder='[{"name":"WBC","value":"5.4","unit":"10^3/uL"}]'>{{ old('test_values') }}</textarea>
+                    <label class="block text-gray-700 text-sm font-medium mb-2">Test Values</label>
+                    <textarea name="test_values" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lab-primary @error('test_values') border-red-500 @enderror" rows="4" placeholder="Enter test values details...">{{ old('test_values') }}</textarea>
+                    @error('test_values')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
                     <p class="text-xs text-gray-500 mt-1">Leave blank if not applicable</p>
                 </div>
             </div>
@@ -171,7 +204,10 @@
                 </div>
                 <div>
                     <label class="block text-gray-700 text-sm font-medium mb-2">Attach Result File (PDF/Image)</label>
-                    <input type="file" name="result_file" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lab-primary">
+                    <input type="file" name="result_file" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lab-primary @error('result_file') border-red-500 @enderror">
+                    @error('result_file')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
                     <p class="text-xs text-gray-500 mt-1">Max 10MB</p>
                 </div>
             </div>

@@ -69,8 +69,11 @@
                         <td class="py-4 px-4">{{ ucfirst($patient->gender ?? 'N/A') }}</td>
                         <td class="py-4 px-4">{{ $patient->created_at->format('M d, Y') }}</td>
                         <td class="py-4 px-4">
-                            <a href="{{ route('reception.view-patient', $patient->id) }}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition">
+                            <a href="{{ route('reception.view-patient', $patient->id) }}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="View Patient">
                                 <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ route('reception.edit-patient', $patient->id) }}" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition" title="Edit Patient">
+                                <i class="fas fa-edit"></i>
                             </a>
                         </td>
                     </tr>

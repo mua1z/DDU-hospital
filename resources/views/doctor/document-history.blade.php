@@ -222,9 +222,14 @@
                         </div>
                     </div>
                     @empty
-                    <div class="text-gray-500 text-sm py-4">No medical records found.</div>
                     @endforelse
                 </div>
+                
+                @if(method_exists($visitHistory, 'links') && $patient)
+                <div class="mt-4 pt-4 border-t">
+                    {{ $visitHistory->appends(['patient_id' => $patient->id])->links() }}
+                </div>
+                @endif
             </div>
         </div>
     </div>

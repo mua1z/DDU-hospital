@@ -48,6 +48,33 @@
                     <span class="font-medium">Book Appointment</span>
                 </a>
             </div>
+
+            <!-- Prescriptions -->
+            <div class="nav-item group">
+                <a href="{{ route('patient.prescriptions') }}" 
+                   class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-all duration-200 {{ request()->routeIs('patient.prescriptions*') ? 'bg-white/20 shadow-inner' : '' }}">
+                    <i class="fas fa-prescription w-6 text-center text-blue-300 group-hover:text-blue-100 transition-colors"></i>
+                    <span class="font-medium">My Prescriptions</span>
+                </a>
+            </div>
+
+            <!-- Lab Results -->
+            <div class="nav-item group">
+                <a href="{{ route('patient.lab-results') }}" 
+                   class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-all duration-200 {{ request()->routeIs('patient.lab-results*') ? 'bg-white/20 shadow-inner' : '' }}">
+                    <i class="fas fa-flask w-6 text-center text-blue-300 group-hover:text-blue-100 transition-colors"></i>
+                    <span class="font-medium">Lab Results</span>
+                </a>
+            </div>
+
+            <!-- Edit Profile -->
+            <div class="nav-item group">
+                <a href="{{ route('patient.edit-profile') }}" 
+                   class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-all duration-200 {{ request()->routeIs('patient.edit-profile') ? 'bg-white/20 shadow-inner' : '' }}">
+                    <i class="fas fa-user-edit w-6 text-center text-blue-300 group-hover:text-blue-100 transition-colors"></i>
+                    <span class="font-medium">Edit Profile</span>
+                </a>
+            </div>
         </nav>
     </div>
 

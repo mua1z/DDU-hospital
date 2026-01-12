@@ -81,41 +81,72 @@ class DoctorController extends Controller
         return view('doctor.dashboard', compact('todayAppointments', 'stats', 'recentPatients', 'upcomingAppointments'));
     }
 
-    public function viewAppointments()
+    public function viewAppointments(Request $request)
     {
         $doctorId = auth()->id();
-        $today = now()->toDateString();
-        $tomorrow = \Carbon\Carbon::tomorrow()->toDateString();
+        $date = $request->input('period', 'today'); // Default to today
+        $search = $request->input('search');
 
-        // Today's appointments formatted
-        $appointments = Appointment::with(['patient'])
-            ->where('doctor_id', $doctorId)
-            ->whereDate('appointment_date', $today)
-            ->orderBy('appointment_time')
-            ->get()
-            ->map(function ($appointment) {
+        // Base Query
+        $query = Appointment::with(['patient'])->where('doctor_id', $doctorId);
+
+        // Filter Logic
+        $periodTitle = "Appointments for Today (" . now()->format('M d, Y') . ")";
+        
+        switch ($date) {
+            case 'today':
+                $query->whereDate('appointment_date', now()->today());
+                $periodTitle = "Appointments for Today (" . now()->format('M d, Y') . ")";
+                break;
+            case 'tomorrow':
+                $query->whereDate('appointment_date', now()->tomorrow());
+                $periodTitle = "Appointments for Tomorrow (" . now()->tomorrow()->format('M d, Y') . ")";
+                break;
+            case 'this_week':
+                $query->whereBetween('appointment_date', [now()->startOfWeek(), now()->endOfWeek()]);
+                $periodTitle = "Appointments for This Week (" . now()->startOfWeek()->format('M d') . ' - ' . now()->endOfWeek()->format('M d, Y') . ")";
+                break;
+        }
+
+        // Search Logic
+        if ($search) {
+            $query->whereHas('patient', function ($q) use ($search) {
+                $q->where('full_name', 'like', "%{$search}%")
+                  ->orWhere('card_number', 'like', "%{$search}%");
+            });
+            if ($date === 'today') { // Update title if searching default
+                 $periodTitle = "Search Results";
+            }
+        }
+
+        // Execute Query and Format
+        $appointments = $query->orderBy('appointment_date')->orderBy('appointment_time')
+            ->paginate(15)
+            ->through(function ($appointment) {
                 return [
                     'id' => $appointment->id,
                     'patient' => $appointment->patient->full_name,
+                    'patient_id' => $appointment->patient_id, // Added for linking
                     'cardNo' => $appointment->patient->card_number,
                     'age' => \Carbon\Carbon::parse($appointment->patient->date_of_birth)->age,
                     'gender' => $appointment->patient->gender,
                     'symptoms' => $appointment->reason ?? 'General Consultation',
+                    'date' => $appointment->appointment_date->format('M d, Y'), // Add date for list
                     'time' => \Carbon\Carbon::parse($appointment->appointment_time)->format('h:i A'),
                     'duration' => '30 min consultation',
                     'status' => ucfirst(str_replace('_', ' ', $appointment->status)),
-                    'statusClass' => $this->getStatusClass($appointment->status),
-                    'priority' => $appointment->type === 'urgent' ? 'high' : 'medium',
-                    'icon' => 'fas fa-user-md',
+                'statusClass' => $this->getStatusClass($appointment->status),
+                'priority' => ($appointment->type === 'walk_in' || $appointment->type === 'urgent') ? 'high' : 'medium',
+                'icon' => 'fas fa-user-md',
                     'bgColor' => $appointment->patient->gender === 'Female' ? 'bg-pink-100' : 'bg-blue-100',
                     'textColor' => $appointment->patient->gender === 'Female' ? 'text-pink-600' : 'text-blue-600',
                 ];
             });
 
-        // Tomorrow's appointments formatted
+        // Tomorrow's appointments (Side widget - always tomorrow)
         $tomorrowAppointments = Appointment::with(['patient'])
             ->where('doctor_id', $doctorId)
-            ->whereDate('appointment_date', $tomorrow)
+            ->whereDate('appointment_date', now()->tomorrow())
             ->orderBy('appointment_time')
             ->get()
             ->map(function ($appointment) {
@@ -156,7 +187,7 @@ class DoctorController extends Controller
             ],
         ];
 
-        return view('doctor.view-appointments', compact('appointments', 'tomorrowAppointments', 'weeklyStats'));
+        return view('doctor.view-appointments', compact('appointments', 'tomorrowAppointments', 'weeklyStats', 'periodTitle'));
     }
 
     public function requestLabTest()
@@ -238,7 +269,7 @@ class DoctorController extends Controller
             'medicines.*.name' => 'required|string',
             'medicines.*.dosage' => 'required|string', // Mixed (e.g. 500mg)
             'medicines.*.frequency' => 'required|string', // Mixed (e.g. 2 times a day)
-            'medicines.*.duration' => 'required|integer|min:1', // Logic expects number of days now based on change
+            'medicines.*.duration' => 'required|string', // Accept text like "5 days" or integer
             'medicines.*.quantity' => 'required|integer|min:1', // Number only
             'medicines.*.instructions' => 'nullable|string',
         ]);
@@ -275,13 +306,9 @@ class DoctorController extends Controller
                 'dosage' => $medData['dosage'],
                 'frequency' => $medData['frequency'],
                 'quantity' => $medData['quantity'],
-                // Duration matches the string from dropdown e.g. "5 days". 
-                // We might want to parse this to integer days if possible, or just store comments
-                // The DB expects integer 'duration_days'. Let's attempt to parse or default to null,
-                // and store the string in instructions if needed is not fitting.
-                // However, the DB schema for prescription_items uses 'duration_days' (int).
-                // The form sends strings like "5 days". Let's extract the integer.
-                'duration_days' => intval($medData['duration']), 
+                // Duration matches the string from dropdown e.g. "5 days" or just "5". 
+                // Extract the first number from the duration string.
+                'duration_days' => preg_match('/\d+/', $medData['duration'], $matches) ? (int)$matches[0] : null, 
                 'instructions' => $medData['instructions'],
                 'status' => 'pending',
             ]);
@@ -310,16 +337,60 @@ class DoctorController extends Controller
             ->with('success', 'Prescription created successfully.');
     }
 
-    public function viewLabResults()
+    public function viewLabResults(Request $request)
     {
         $doctorId = auth()->id();
 
-        $labResults = LabResult::with(['patient', 'labRequest'])
+        $query = LabResult::with(['patient', 'labRequest'])
             ->whereHas('labRequest', function ($query) use ($doctorId) {
                 $query->where('requested_by', $doctorId);
             })
-            ->orderBy('test_date', 'desc')
-            ->paginate(20);
+            ->orderBy('updated_at', 'desc');
+
+        // Filter by Status
+        if ($request->has('status')) {
+            if ($request->status === 'abnormal') {
+                $query->where('status', 'critical');
+            } elseif (in_array($request->status, ['pending', 'completed'])) {
+                $query->where('status', $request->status);
+            }
+        }
+
+        // Filter by Period
+        if ($request->has('period')) {
+            switch ($request->period) {
+                case 'today':
+                    $query->whereDate('test_date', now()->today());
+                    break;
+                case 'tomorrow':
+                    $query->whereDate('test_date', now()->tomorrow());
+                    break;
+                case 'this_week':
+                    $query->whereBetween('test_date', [now()->startOfWeek(), now()->endOfWeek()]);
+                    break;
+            }
+        }
+        
+        // Date Filter (specific date)
+        if ($request->filled('date')) {
+            $query->whereDate('test_date', $request->date);
+        }
+
+        // Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('patient', function($q) use ($search) {
+                    $q->where('full_name', 'like', "%{$search}%")
+                      ->orWhere('card_number', 'like', "%{$search}%");
+                })->orWhereHas('labRequest', function($q) use ($search) {
+                    $q->where('test_type', 'like', "%{$search}%")
+                      ->orWhere('request_number', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        $labResults = $query->paginate(20)->withQueryString();
 
         // Lab Statistics
         $today = now()->toDateString();
@@ -482,7 +553,7 @@ class DoctorController extends Controller
         if ($patientId) {
             $patient = Patient::with(['medicalRecords.doctor', 'prescriptions.items.medication'])->find($patientId);
             if ($patient) {
-                $visitHistory = $patient->medicalRecords()->orderBy('visit_date', 'desc')->get();
+                $visitHistory = $patient->medicalRecords()->orderBy('visit_date', 'desc')->paginate(10);
             }
         }
 

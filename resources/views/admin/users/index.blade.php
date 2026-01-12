@@ -96,6 +96,11 @@
                             <span class="px-2 py-1 rounded-full text-xs font-medium {{ $colorClass }}">
                                 {{ $u->role }}
                             </span>
+                            @if($u->role === 'Doctors' && $u->room_number)
+                                <div class="text-xs text-gray-500 mt-1">
+                                    <i class="fas fa-door-open mr-1"></i> Room {{ $u->room_number }}
+                                </div>
+                            @endif
                         </td>
                         <td class="py-4 px-6">
                             @if($u->is_active)

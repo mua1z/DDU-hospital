@@ -109,18 +109,44 @@
             
             <!-- Content -->
             <div class="p-4 lg:p-6 pb-20">
-                @if(session('success'))
-                    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded shadow-sm animate-fade-in" role="alert">
-                        <p class="font-bold">Success</p>
-                        <p>{{ session('success') }}</p>
+                @if(session('success') || session('status'))
+                <div x-data="{ show: true }" x-show="show" class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 shadow relative rounded-md animate-fade-in" role="alert">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-bold text-lg"><i class="fas fa-check-circle mr-2"></i>Success</p>
+                            <p class="mt-1">{{ session('success') ?? session('status') }}</p>
+                        </div>
+                        <button @click="show = false" class="text-green-700 hover:text-green-900"><i class="fas fa-times"></i></button>
                     </div>
+                </div>
                 @endif
 
                 @if(session('error'))
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded shadow-sm animate-fade-in" role="alert">
-                        <p class="font-bold">Error</p>
-                        <p>{{ session('error') }}</p>
+                <div x-data="{ show: true }" x-show="show" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 shadow relative rounded-md animate-fade-in" role="alert">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-bold text-lg"><i class="fas fa-exclamation-circle mr-2"></i>Error</p>
+                            <p class="mt-1">{{ session('error') }}</p>
+                        </div>
+                        <button @click="show = false" class="text-red-700 hover:text-red-900"><i class="fas fa-times"></i></button>
                     </div>
+                </div>
+                @endif
+                
+                @if ($errors->any())
+                <div x-data="{ show: true }" x-show="show" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 shadow relative rounded-md animate-fade-in" role="alert">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-bold text-lg"><i class="fas fa-exclamation-triangle mr-2"></i>Validation Error</p>
+                            <ul class="list-disc list-inside mt-1">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <button @click="show = false" class="text-red-700 hover:text-red-900"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
                 @endif
 
                 @yield('content')

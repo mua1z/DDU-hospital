@@ -7,23 +7,43 @@
 @section('content')
 <div class="animate-slade-up">
     <!-- Filters -->
+    <!-- Filters -->
     <div class="bg-white rounded-xl shadow p-6 mb-6">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div class="flex items-center space-x-4">
-                <button class="px-4 py-2 bg-pharma-primary text-white rounded-lg font-medium">All Prescriptions</button>
-                <button class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Pending</button>
-                <button class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Dispensed</button>
-                <button class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancelled</button>
-            </div>
-            
-            <div class="flex items-center space-x-4">
-                <div class="relative">
-                    <input type="text" placeholder="Search by prescription ID or patient..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pharma-primary">
-                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+        <form action="{{ route('pharmacy.view-prescriptions') }}" method="GET">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                    <a href="{{ route('pharmacy.view-prescriptions', request()->except('status', 'page')) }}" 
+                       class="px-4 py-2 rounded-lg font-medium transition {{ !request('status') ? 'bg-pharma-primary text-white' : 'border border-gray-300 text-gray-700 hover:bg-gray-50' }}">
+                        All Prescriptions
+                    </a>
+                    <button type="submit" name="status" value="pending" 
+                            class="px-4 py-2 rounded-lg font-medium transition {{ request('status') === 'pending' ? 'bg-blue-600 text-white' : 'border border-gray-300 text-gray-700 hover:bg-gray-50' }}">
+                        Pending
+                    </button>
+                    <button type="submit" name="status" value="dispensed" 
+                            class="px-4 py-2 rounded-lg font-medium transition {{ request('status') === 'dispensed' ? 'bg-green-600 text-white' : 'border border-gray-300 text-gray-700 hover:bg-gray-50' }}">
+                        Dispensed
+                    </button>
+                    <button type="submit" name="status" value="cancelled" 
+                            class="px-4 py-2 rounded-lg font-medium transition {{ request('status') === 'cancelled' ? 'bg-red-600 text-white' : 'border border-gray-300 text-gray-700 hover:bg-gray-50' }}">
+                        Cancelled
+                    </button>
                 </div>
-                <input type="date" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pharma-primary">
+                
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by prescription ID or patient..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pharma-primary">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                    <input type="date" name="date" value="{{ request('date') }}" onchange="this.form.submit()" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pharma-primary">
+                    @if(request()->anyFilled(['search', 'date']))
+                        <a href="{{ route('pharmacy.view-prescriptions', ['status' => request('status')]) }}" class="text-gray-500 hover:text-red-600" title="Clear Filters">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    @endif
+                </div>
             </div>
-        </div>
+        </form>
     </div>
     
     <!-- Prescriptions Table -->

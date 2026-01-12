@@ -14,18 +14,93 @@
                 
                 <form action="{{ route('pharmacy.store-inventory') }}" method="POST" class="space-y-6">
                     @csrf
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
+                        <div class="md:col-span-2" x-data="{ isNewMedication: false }">
                             <label class="block text-gray-700 text-sm font-medium mb-2">Medication *</label>
-                            <select name="medication_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pharma-primary" required>
-                                <option value="">Select Medication</option>
-                                @foreach($medications as $medication)
-                                <option value="{{ $medication->id }}">{{ $medication->name }} {{ $medication->strength ?? '' }}</option>
-                                @endforeach
-                            </select>
-                            @error('medication_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                            
+                            <!-- Toggle between existing and new medication -->
+                            <div class="flex items-center mb-3 space-x-4">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="medication_mode" value="existing" x-model="isNewMedication" :value="false" checked class="form-radio h-4 w-4 text-pharma-primary">
+                                    <span class="ml-2 text-sm text-gray-700">Select Existing</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="radio" name="medication_mode" value="new" x-model="isNewMedication" :value="true" class="form-radio h-4 w-4 text-green-600">
+                                    <span class="ml-2 text-sm text-gray-700">Add New Medication</span>
+                                </label>
+                            </div>
+                            
+                            <!-- Existing Medication Dropdown -->
+                            <div x-show="!isNewMedication">
+                                <select name="medication_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pharma-primary" :required="!isNewMedication">
+                                    <option value="">Select Medication</option>
+                                    @foreach($medications as $medication)
+                                    <option value="{{ $medication->id }}">{{ $medication->name }} {{ $medication->strength ?? '' }}</option>
+                                    @endforeach
+                                </select>
+                                @error('medication_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                            </div>
+                            
+                            <!-- New Medication Fields -->
+                            <div x-show="isNewMedication" x-transition class="space-y-3 p-4 bg-green-50 rounded-lg border border-green-200">
+                                <p class="text-green-700 text-xs font-medium mb-2"><i class="fas fa-plus-circle mr-1"></i>Adding New Medication to System</p>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-gray-700 text-xs font-medium mb-1">Medication Name *</label>
+                                        <input type="text" name="new_medication_name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm" placeholder="e.g., Amoxicillin" :required="isNewMedication">
+                                        @error('new_medication_name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-700 text-xs font-medium mb-1">Generic Name</label>
+                                        <input type="text" name="new_generic_name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm" placeholder="e.g., Amoxicillin">
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-700 text-xs font-medium mb-1">Dosage Form</label>
+                                        <select name="new_dosage_form" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm">
+                                            <option value="">Select Form</option>
+                                            <option value="Tablet">Tablet</option>
+                                            <option value="Capsule">Capsule</option>
+                                            <option value="Syrup">Syrup</option>
+                                            <option value="Injection">Injection</option>
+                                            <option value="Cream">Cream</option>
+                                            <option value="Ointment">Ointment</option>
+                                            <option value="Drops">Drops</option>
+                                            <option value="Inhaler">Inhaler</option>
+                                            <option value="Suppository">Suppository</option>
+                                            <option value="Powder">Powder</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-700 text-xs font-medium mb-1">Strength</label>
+                                        <input type="text" name="new_strength" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm" placeholder="e.g., 500mg">
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-700 text-xs font-medium mb-1">Category</label>
+                                        <select name="new_category" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm">
+                                            <option value="">Select Category</option>
+                                            <option value="Antibiotics">Antibiotics</option>
+                                            <option value="Analgesics">Analgesics (Pain Relief)</option>
+                                            <option value="Antipyretics">Antipyretics (Fever)</option>
+                                            <option value="Antidiabetics">Antidiabetics</option>
+                                            <option value="Antihypertensives">Antihypertensives</option>
+                                            <option value="Antihistamines">Antihistamines</option>
+                                            <option value="Vitamins">Vitamins & Supplements</option>
+                                            <option value="Gastrointestinal">Gastrointestinal</option>
+                                            <option value="Respiratory">Respiratory</option>
+                                            <option value="Dermatological">Dermatological</option>
+                                            <option value="Cardiovascular">Cardiovascular</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex items-center pt-5">
+                                        <input type="checkbox" name="new_requires_prescription" id="new_requires_prescription" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                        <label for="new_requires_prescription" class="ml-2 block text-xs text-gray-700">Requires Prescription</label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-gray-700 text-sm font-medium mb-2">Batch Number</label>
                             <input type="text" name="batch_number" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pharma-primary" placeholder="BATCH-XXX-YYYY" value="{{ old('batch_number') }}">

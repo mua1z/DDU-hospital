@@ -169,7 +169,35 @@
                             <td class="py-4 px-4">{{ $result->labRequest->test_type }}</td>
                             <td class="py-4 px-4">{{ $result->test_date }}</td>
                             <td class="py-4 px-4">
-                                <a href="{{ route('lab.test-results') }}" class="text-lab-primary hover:underline font-medium">View</a>
+                                @php
+                                    $rawResult = strtolower(trim((string) ($result->results ?? '')));
+                                    $simpleResult = $rawResult === 'positive' ? 'positive'
+                                        : ($rawResult === 'negative' ? 'negative' : null);
+                                    
+                                    if ($simpleResult) {
+                                        $resultClass = match($simpleResult) {
+                                            'positive' => 'text-red-600 font-bold',
+                                            'negative' => 'text-green-600 font-bold',
+                                            default => 'text-gray-600',
+                                        };
+                                        $label = ucfirst($simpleResult);
+                                    } elseif (!empty($result->results)) {
+                                        $resultClass = 'text-gray-600';
+                                        $label = Str::limit($result->results, 15);
+                                    } elseif ($result->result_file) {
+                                        $resultClass = 'text-blue-600 font-medium';
+                                        $label = 'File Attached';
+                                    } else {
+                                        $resultClass = 'text-gray-400 italic';
+                                        $label = 'Pending';
+                                    }
+                                @endphp
+                                <a href="{{ route('lab.view-result-details', $result->id) }}" class="hover:underline flex items-center {{ $resultClass }}">
+                                    @if($label === 'File Attached')
+                                        <i class="fas fa-paperclip mr-1 text-xs"></i>
+                                    @endif
+                                    {{ $label }}
+                                </a>
                             </td>
                         </tr>
                         @empty

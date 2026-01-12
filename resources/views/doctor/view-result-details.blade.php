@@ -14,7 +14,7 @@
         </a>
         <div class="flex space-x-3">
             @if($result->result_file)
-            <a href="{{ Storage::url($result->result_file) }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center space-x-2">
+            <a href="{{ Storage::disk('public')->url($result->result_file) }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center space-x-2">
                 <i class="fas fa-file-download"></i>
                 <span>Download File</span>
             </a>
@@ -193,8 +193,32 @@
     <div class="bg-white rounded-xl shadow p-6">
         <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
             <i class="fas fa-paperclip text-gray-600 mr-2"></i>
-            Attached File
+            Attached Result
         </h3>
+
+        <!-- File Preview -->
+        <div class="mb-6">
+            @php
+                $extension = pathinfo($result->result_file, PATHINFO_EXTENSION);
+                $fileUrl = Storage::disk('public')->url($result->result_file);
+            @endphp
+
+            @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp']))
+                <div class="flex justify-center bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <img src="{{ $fileUrl }}" alt="Lab Result" class="max-w-full max-h-[800px] rounded shadow-sm">
+                </div>
+            @elseif(strtolower($extension) === 'pdf')
+                <div class="w-full h-[800px] bg-gray-50 rounded-lg border border-gray-200">
+                    <iframe src="{{ $fileUrl }}" class="w-full h-full rounded-lg"></iframe>
+                </div>
+            @else
+                <div class="p-8 text-center bg-gray-50 rounded-lg border border-gray-200">
+                    <i class="fas fa-file-alt text-4xl text-gray-400 mb-2"></i>
+                    <p class="text-gray-600">Preview not available for this file type.</p>
+                </div>
+            @endif
+        </div>
+
         <div class="flex items-center justify-between bg-gray-50 rounded-lg p-4">
             <div class="flex items-center">
                 <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
@@ -205,9 +229,9 @@
                     <div class="text-sm text-gray-500">Laboratory result document</div>
                 </div>
             </div>
-            <a href="{{ Storage::url($result->result_file) }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center space-x-2">
+            <a href="{{ Storage::disk('public')->url($result->result_file) }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center space-x-2">
                 <i class="fas fa-external-link-alt"></i>
-                <span>Open</span>
+                <span>Open in New Tab</span>
             </a>
         </div>
     </div>

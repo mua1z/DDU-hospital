@@ -16,13 +16,6 @@
         </div>
 
         <div class="flex items-center space-x-4 mt-4 lg:mt-0">
-            <!-- Stock Alert -->
-            <div class="hidden md:flex items-center space-x-2 px-4 py-2 bg-red-50 rounded-lg">
-                <i class="fas fa-exclamation-triangle text-red-600"></i>
-                <span class="text-gray-700 font-medium">
-                    <span class="text-red-600 font-bold">5</span> Low Stock Items
-                </span>
-            </div>
             
             <!-- Language Switcher -->
             <div x-data="{ open: false }" class="relative z-50 mr-4">

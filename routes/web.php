@@ -10,7 +10,8 @@ Route::get('/', function () {
 
 Route::view('/about', 'about');
 Route::view('/services', 'services');
-Route::view('/contact', 'contact');
+Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 
 // Language Switch Route
 Route::get('lang/{locale}', function ($locale) {
@@ -45,6 +46,10 @@ Route::middleware(['auth', EnsureAdmin::class])->prefix('admin')->name('admin.')
 
     // System Logs
     Route::get('logs', [App\Http\Controllers\Admin\AdminLogsController::class, 'index'])->name('logs.index');
+
+    // Contact Messages
+    Route::get('contacts', [App\Http\Controllers\Admin\ContactController::class, 'index'])->name('contacts.index');
+    Route::get('contacts/{id}', [App\Http\Controllers\Admin\ContactController::class, 'show'])->name('contacts.show');
     
     // Reports (FR-24)
     Route::get('users/export/pdf', [AdminUserController::class, 'exportPDF'])->name('users.export.pdf');
@@ -68,6 +73,8 @@ Route::middleware(['auth', 'role:receptionist'])->prefix('reception')->name('rec
     Route::post('/register-patient', [ReceptionController::class, 'storePatient'])->name('store-patient');
     Route::get('/search-patients', [ReceptionController::class, 'searchPatients'])->name('search-patients');
     Route::get('/view-patient/{id}', [ReceptionController::class, 'viewPatient'])->name('view-patient');
+    Route::get('/edit-patient/{id}', [ReceptionController::class, 'editPatient'])->name('edit-patient');
+    Route::put('/update-patient/{id}', [ReceptionController::class, 'updatePatient'])->name('update-patient');
     Route::get('/schedule-appointments', [ReceptionController::class, 'scheduleAppointments'])->name('schedule-appointments');
     Route::post('/schedule-appointments', [ReceptionController::class, 'storeAppointment'])->name('store-appointment');
     Route::post('/appointments/{id}/approve', [ReceptionController::class, 'approveRequest'])->name('approve-request');
@@ -143,6 +150,7 @@ Route::middleware(['auth', 'role:pharmacist'])->prefix('pharmacy')->name('pharma
     Route::post('/inventory-management', [PharmacyController::class, 'storeInventory'])->name('store-inventory');
     Route::put('/inventory-management/{id}', [PharmacyController::class, 'updateInventory'])->name('update-inventory');
     Route::delete('/inventory-management/{id}', [PharmacyController::class, 'destroyInventory'])->name('destroy-inventory');
+    Route::post('/medications', [PharmacyController::class, 'storeMedication'])->name('store-medication');
     Route::get('/check-expiry', [PharmacyController::class, 'checkExpiry'])->name('check-expiry');
     Route::get('/generate-reports', [PharmacyController::class, 'generateReports'])->name('generate-reports');
     
@@ -160,6 +168,12 @@ Route::middleware(['auth', 'role:patient'])->prefix('patient')->name('patient.')
     Route::post('/book-appointment', [PatientController::class, 'storeAppointment'])->name('store-appointment');
     Route::get('/my-appointments', [PatientController::class, 'myAppointments'])->name('my-appointments');
     Route::get('/medical-records', [PatientController::class, 'medicalRecords'])->name('medical-records');
+    Route::get('/prescriptions', [PatientController::class, 'viewPrescriptions'])->name('prescriptions');
+    Route::get('/prescriptions/{id}', [PatientController::class, 'viewPrescriptionDetails'])->name('prescription-details');
+    Route::get('/lab-results', [PatientController::class, 'viewLabResults'])->name('lab-results');
+    Route::get('/lab-results/{id}', [PatientController::class, 'viewLabResultDetails'])->name('lab-result-details');
+    Route::get('/edit-profile', [PatientController::class, 'editProfile'])->name('edit-profile');
+    Route::put('/update-profile', [PatientController::class, 'updateProfile'])->name('update-profile');
 });
 
 require __DIR__.'/auth.php';

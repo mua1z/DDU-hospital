@@ -58,11 +58,35 @@ class PharmacyController extends Controller
         return view('pharmacy.dashboard', compact('stats', 'recentPrescriptions', 'lowStockItems'));
     }
 
-    public function viewPrescriptions()
+    public function viewPrescriptions(Request $request)
     {
-        $prescriptions = Prescription::with(['patient', 'prescribedBy', 'items.medication'])
-            ->orderBy('prescription_date', 'desc')
-            ->paginate(20);
+        $query = Prescription::with(['patient', 'prescribedBy', 'items.medication'])
+            ->orderBy('prescription_date', 'desc');
+
+        // Filter by Status
+        if ($request->has('status') && in_array($request->status, ['pending', 'dispensed', 'cancelled'])) {
+            $query->where('status', $request->status);
+        }
+
+        // Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('prescription_number', 'like', "%{$search}%")
+                  ->orWhere('id', 'like', "%{$search}%")
+                  ->orWhereHas('patient', function($q) use ($search) {
+                      $q->where('full_name', 'like', "%{$search}%")
+                        ->orWhere('card_number', 'like', "%{$search}%");
+                  });
+            });
+        }
+        
+        // Date Filter
+        if ($request->filled('date')) {
+            $query->whereDate('prescription_date', $request->date);
+        }
+
+        $prescriptions = $query->paginate(20)->withQueryString();
 
         $counts = [
             'total' => Prescription::count(),
@@ -274,15 +298,49 @@ class PharmacyController extends Controller
             ->orderBy('expiry_date')
             ->paginate(20);
 
-        $medications = Medication::where('is_active', true)->orderBy('name')->get();
+        $medications = Medication::orderBy('name')->get();
 
         return view('pharmacy.inventory-management', compact('inventory', 'medications'));
     }
 
     public function storeInventory(Request $request)
     {
+        // Check if adding a new medication or using existing one
+        $isNewMedication = $request->input('medication_mode') === 'new';
+        
+        if ($isNewMedication) {
+            // Validate new medication fields
+            $request->validate([
+                'new_medication_name' => 'required|string|max:255|unique:medications,name',
+                'new_generic_name' => 'nullable|string|max:255',
+                'new_dosage_form' => 'nullable|string|max:100',
+                'new_strength' => 'nullable|string|max:100',
+                'new_category' => 'nullable|string|max:100',
+            ]);
+            
+            // Create the new medication
+            $medication = Medication::create([
+                'name' => $request->input('new_medication_name'),
+                'generic_name' => $request->input('new_generic_name') ?? $request->input('new_medication_name'),
+                'dosage_form' => $request->input('new_dosage_form'),
+                'strength' => $request->input('new_strength'),
+                'category' => $request->input('new_category'),
+                'requires_prescription' => $request->has('new_requires_prescription'),
+                'is_active' => true,
+            ]);
+            
+            $medicationId = $medication->id;
+        } else {
+            // Validate existing medication selection
+            $request->validate([
+                'medication_id' => 'required|exists:medications,id',
+            ]);
+            
+            $medicationId = $request->input('medication_id');
+        }
+        
+        // Validate inventory fields
         $validated = $request->validate([
-            'medication_id' => 'required|exists:medications,id',
             'batch_number' => ['nullable', 'string', 'alpha_num'], // Alphanumeric Only
             'quantity' => 'required|integer|min:1', // Number Only
             'minimum_stock_level' => 'required|integer|min:0', // Number Only
@@ -293,12 +351,17 @@ class PharmacyController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        $validated['medication_id'] = $medicationId;
         $validated['location'] = 'pharmacy';
 
         Inventory::create($validated);
 
+        $successMessage = $isNewMedication 
+            ? 'New medication registered and added to inventory successfully.'
+            : 'Inventory item added successfully.';
+
         return redirect()->route('pharmacy.inventory-management')
-            ->with('success', 'Inventory item added successfully.');
+            ->with('success', $successMessage);
     }
 
     public function updateInventory(Request $request, $id)
@@ -335,6 +398,31 @@ class PharmacyController extends Controller
 
         return redirect()->route('pharmacy.inventory-management')
             ->with('success', 'Inventory item removed successfully.');
+    }
+
+    /**
+     * Store a new medication in the database (Pharmacy registers medicines)
+     */
+    public function storeMedication(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:medications,name',
+            'generic_name' => 'nullable|string|max:255',
+            'brand_name' => 'nullable|string|max:255',
+            'dosage_form' => 'nullable|string|max:100',
+            'strength' => 'nullable|string|max:100',
+            'category' => 'nullable|string|max:100',
+            'description' => 'nullable|string',
+            'requires_prescription' => 'nullable|boolean',
+        ]);
+
+        $validated['is_active'] = true;
+        $validated['requires_prescription'] = $request->has('requires_prescription');
+
+        Medication::create($validated);
+
+        return redirect()->route('pharmacy.inventory-management')
+            ->with('success', 'New medication registered successfully. You can now add it to inventory.');
     }
 
     public function checkExpiry()

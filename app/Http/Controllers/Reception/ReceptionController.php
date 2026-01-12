@@ -114,6 +114,46 @@ class ReceptionController extends Controller
         return view('reception.view-patient', compact('patient'));
     }
 
+    public function editPatient($id)
+    {
+        $patient = Patient::findOrFail($id);
+        return view('reception.edit-patient', compact('patient'));
+    }
+
+    public function updatePatient(Request $request, $id)
+    {
+        $patient = Patient::findOrFail($id);
+
+        $validated = $request->validate([
+            'full_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\.]+$/'],
+            'card_number' => ['required', 'string', 'alpha_num', 'unique:patients,card_number,' . $id],
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'required|in:male,female',
+            'phone' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\+\-\s]+$/'],
+            'email' => 'nullable|email|max:255',
+            'address' => 'nullable|string',
+            'emergency_contact_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\.]+$/'],
+            'emergency_contact_phone' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\+\-\s]+$/'],
+            'medical_history' => 'nullable|string',
+            'allergies' => 'nullable|string',
+        ]);
+
+        // Capitalize gender to match DB ENUM ('Male', 'Female')
+        if (isset($validated['gender'])) {
+            $validated['gender'] = ucfirst($validated['gender']);
+        }
+
+        $patient->update($validated);
+
+        // Update user name if changed
+        if ($patient->user_id && $patient->user->name !== $validated['full_name']) {
+            $patient->user->update(['name' => $validated['full_name']]);
+        }
+
+        return redirect()->route('reception.view-patient', $patient->id)
+            ->with('success', 'Patient information updated successfully.');
+    }
+
     public function scheduleAppointments()
     {
         $doctors = User::whereIn('role', ['Doctor', 'Doctors'])->get();
@@ -186,7 +226,7 @@ class ReceptionController extends Controller
 
         if ($validated['type'] === 'walk_in') {
             // Assume walk-ins might be emergencies or at least urgent
-             $appointment->type = 'urgent'; // Auto-flag as urgent for visibility
+             $appointment->notes = ($appointment->notes ? $appointment->notes . "\n" : "") . "[URGENT CASE]";
              $appointment->save();
              
              // Notify doctors/admins of emergency case (FR-22)

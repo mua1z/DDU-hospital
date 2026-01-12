@@ -41,16 +41,26 @@
 
 
             <!-- Role -->
-            <div class="mb-6">
+            <div class="mb-6" x-data="{ role: '{{ old('role', $user->role) }}' }">
                 <label for="role" class="block text-sm font-medium text-gray-700 mb-2">Role</label>
-                <select id="role" name="role" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition bg-white">
+                <select id="role" name="role" x-model="role" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition bg-white">
                     @foreach(['User', 'Admin', 'Receptions', 'Doctors', 'Laboratory', 'Pharmacist', 'Patient'] as $role)
-                        <option value="{{ $role }}" {{ old('role', $user->role) == $role ? 'selected' : '' }}>{{ $role }}</option>
+                        <option value="{{ $role }}">{{ $role }}</option>
                     @endforeach
                 </select>
                 @error('role')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
+
+                <!-- Room Number (Doctors Only) -->
+                <div class="mt-6" x-show="role === 'Doctors'" x-transition>
+                    <label for="room_number" class="block text-sm font-medium text-gray-700 mb-2">Room Number</label>
+                    <input id="room_number" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition" 
+                           type="text" name="room_number" value="{{ old('room_number', $user->room_number) }}" placeholder="e.g. 101">
+                    @error('room_number')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             <!-- Active Status -->

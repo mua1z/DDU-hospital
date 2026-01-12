@@ -39,7 +39,12 @@
                 <a href="{{ route('lab.pending-requests') }}" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-800 hover:bg-opacity-50 transition">
                     <i class="fas fa-clock"></i>
                     <span>{{ __('Pending Requests') }}</span>
-                    <span class="ml-auto bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center animate-pulse">3</span>
+                    @php
+                        $pendingCount = \App\Models\LabRequest::where('status', 'pending')->count();
+                    @endphp
+                    @if($pendingCount > 0)
+                        <span class="ml-auto bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center animate-pulse">{{ $pendingCount }}</span>
+                    @endif
                 </a>
             </li>
             <li class="nav-item">
@@ -85,17 +90,11 @@
                     </div>
                     <i class="fas fa-chevron-down text-xs transition-transform" :class="{ 'rotate-180': open }"></i>
                 </button>
-                <ul x-show="open" x-collapse class="ml-6 mt-2 space-y-1">
+                <ul x-show="open" x-collapse class="ml-6 mt-2 space-y-1 bg-green-700 rounded-lg p-2">
                     <li>
-                        <a href="{{ route('lab.results.export.pdf') }}" class="flex items-center space-x-2 p-2 text-sm rounded-lg hover:bg-green-700 transition">
+                        <a href="{{ route('lab.results.export.pdf') }}" class="flex items-center space-x-2 p-2 text-sm rounded-lg bg-green-600 transition">
                             <i class="fas fa-file-pdf text-red-400"></i>
                             <span>{{ __('Test Results (PDF)') }}</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('lab.results.export.excel') }}" class="flex items-center space-x-2 p-2 text-sm rounded-lg hover:bg-green-700 transition">
-                            <i class="fas fa-file-excel text-green-400"></i>
-                            <span>{{ __('Test Results (Excel)') }}</span>
                         </a>
                     </li>
                 </ul>

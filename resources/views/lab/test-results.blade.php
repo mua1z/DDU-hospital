@@ -58,6 +58,11 @@
                             <span class="{{ $statusColor }} py-1 px-3 rounded-full text-sm font-medium">{{ ucfirst($result->status) }}</span>
                         </td>
                         <td class="py-4 px-4">
+                            @if($result->result_file)
+                            <a href="{{ Storage::disk('public')->url($result->result_file) }}" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium flex items-center mr-3" title="View File">
+                                <i class="fas fa-file-alt mr-1"></i>
+                            </a>
+                            @endif
                             <a href="{{ route('lab.view-result-details', $result->id) }}" class="text-lab-primary hover:underline font-medium flex items-center">
                                 <i class="fas fa-eye mr-1"></i>
                                 View Details

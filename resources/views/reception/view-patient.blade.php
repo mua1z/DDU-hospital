@@ -174,6 +174,9 @@
                     <a href="{{ route('reception.schedule-appointments') }}?patient_id={{ $patient->id }}" class="block w-full px-4 py-3 bg-ddu-primary text-white rounded-lg hover:bg-blue-700 transition text-center">
                         <i class="fas fa-calendar-alt mr-2"></i> Schedule Appointment
                     </a>
+                    <a href="{{ route('reception.edit-patient', $patient->id) }}" class="block w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-center">
+                        <i class="fas fa-edit mr-2"></i> Edit Patient Info
+                    </a>
                     <a href="{{ route('reception.search-patients') }}" class="block w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-center">
                         <i class="fas fa-search mr-2"></i> Search Patients
                     </a>

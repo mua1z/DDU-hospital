@@ -40,7 +40,7 @@ class LabResultUploaded extends Notification
     {
         return [
             'message' => 'Lab results ready: ' . $this->labResult->labRequest->test_type . ' for ' . $this->labResult->patient->full_name,
-            'link' => route('doctor.view-lab-results'),
+            'link' => route('doctor.view-result-details', $this->labResult->id),
             'type' => 'lab_result',
             'created_at' => now(),
         ];

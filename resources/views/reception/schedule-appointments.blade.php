@@ -38,7 +38,7 @@
                                 <select name="doctor_id" class="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500" required>
                                     <option value="">Assign Doctor...</option>
                                     @foreach($doctors as $doctor)
-                                    <option value="{{ $doctor->id }}">{{ $doctor->name }}</option>
+                                    <option value="{{ $doctor->id }}">{{ $doctor->name }}{{ $doctor->room_number ? ' - Room ' . $doctor->room_number : '' }}</option>
                                     @endforeach
                                 </select>
                                 <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-700 transition">
@@ -74,7 +74,7 @@
                             <select name="doctor_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ddu-primary">
                                 <option value="">Select Doctor</option>
                                 @foreach($doctors as $doctor)
-                                <option value="{{ $doctor->id }}">{{ $doctor->name }}</option>
+                                <option value="{{ $doctor->id }}">{{ $doctor->name }}{{ $doctor->room_number ? ' - Room ' . $doctor->room_number : '' }}</option>
                                 @endforeach
                             </select>
                         </div>

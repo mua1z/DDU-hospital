@@ -10,27 +10,38 @@
     <div class="bg-white rounded-xl shadow p-6 mb-6">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div class="flex items-center space-x-4">
-                <button class="px-4 py-2 bg-ddu-primary text-white rounded-lg font-medium">Today</button>
-                <button class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Tomorrow</button>
-                <button class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">This Week</button>
+                <a href="{{ request()->fullUrlWithQuery(['period' => 'today']) }}" 
+                   class="px-4 py-2 rounded-lg font-medium transition {{ request('period', 'today') === 'today' ? 'bg-ddu-primary text-white' : 'border border-gray-300 text-gray-700 hover:bg-gray-50' }}">
+                    Today
+                </a>
+                <a href="{{ request()->fullUrlWithQuery(['period' => 'tomorrow']) }}" 
+                   class="px-4 py-2 rounded-lg font-medium transition {{ request('period') === 'tomorrow' ? 'bg-ddu-primary text-white' : 'border border-gray-300 text-gray-700 hover:bg-gray-50' }}">
+                    Tomorrow
+                </a>
+                <a href="{{ request()->fullUrlWithQuery(['period' => 'this_week']) }}" 
+                   class="px-4 py-2 rounded-lg font-medium transition {{ request('period') === 'this_week' ? 'bg-ddu-primary text-white' : 'border border-gray-300 text-gray-700 hover:bg-gray-50' }}">
+                    This Week
+                </a>
             </div>
             
-            <div class="flex items-center space-x-4">
-                <div class="relative">
-                    <input type="text" placeholder="Search patient..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ddu-primary">
+            <form action="{{ route('doctor.view-appointments') }}" method="GET" class="flex flex-1 md:flex-none items-center space-x-4">
+                @if(request('period')) <input type="hidden" name="period" value="{{ request('period') }}"> @endif
+                <div class="relative w-full">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search patient..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-ddu-primary">
                     <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                 </div>
-                <button class="px-4 py-2 border border-ddu-primary text-ddu-primary rounded-lg hover:bg-green-50">
+                <!-- Filter button removed or kept as submit? A search icon is enough usually, but 'Filter' button in design suggests advanced or just submit -->
+                <button type="submit" class="px-4 py-2 border border-ddu-primary text-ddu-primary rounded-lg hover:bg-green-50">
                     <i class="fas fa-filter mr-2"></i> Filter
                 </button>
-            </div>
+            </form>
         </div>
     </div>
     
     <!-- Appointments Calendar View -->
     <div class="bg-white rounded-xl shadow overflow-hidden mb-6">
         <div class="p-6 border-b">
-            <h2 class="text-xl font-bold text-gray-800">Appointments for Today ({{ \Carbon\Carbon::now()->format('M d, Y') }})</h2>
+            <h2 class="text-xl font-bold text-gray-800">{{ $periodTitle }}</h2>
         </div>
         
         <div class="divide-y">
@@ -61,6 +72,9 @@
                     <div class="flex flex-col lg:items-end space-y-3">
                         <div class="text-right">
                             <div class="text-2xl font-bold text-gray-800">{{ $appointment['time'] }}</div>
+                             @if(request('period') === 'this_week' || request('search'))
+                                <div class="text-sm text-blue-600 font-medium mb-1">{{ $appointment['date'] }}</div>
+                            @endif
                             <div class="text-gray-600 font-medium">{{ $appointment['duration'] }}</div>
                         </div>
                         
@@ -110,6 +124,11 @@
             </div>
             @endforelse
         </div>
+        @if(method_exists($appointments, 'links'))
+        <div class="px-6 py-4 border-t">
+            {{ $appointments->links() }}
+        </div>
+        @endif
     </div>
     
     <!-- Upcoming Appointments -->

@@ -78,23 +78,11 @@
                     </div>
                     <i class="fas fa-chevron-down text-xs transition-transform" :class="{ 'rotate-180': open }"></i>
                 </button>
-                <ul x-show="open" x-collapse class="ml-6 mt-2 space-y-1">
+                <ul x-show="open" x-collapse class="ml-6 mt-2 space-y-1 bg-green-700 rounded-lg p-2">
                     <li>
-                        <a href="{{ route('doctor.appointments.export.pdf') }}" class="flex items-center space-x-2 p-2 text-sm rounded-lg hover:bg-green-700 transition">
+                        <a href="{{ route('doctor.appointments.export.pdf') }}" class="flex items-center space-x-2 p-2 text-sm rounded-lg bg-green-600 transition">
                             <i class="fas fa-file-pdf text-red-400"></i>
                             <span>{{ __('Appointments (PDF)') }}</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('doctor.appointments.export.excel') }}" class="flex items-center space-x-2 p-2 text-sm rounded-lg hover:bg-green-700 transition">
-                            <i class="fas fa-file-excel text-green-400"></i>
-                            <span>{{ __('Appointments (Excel)') }}</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('doctor.prescriptions.export.excel') }}" class="flex items-center space-x-2 p-2 text-sm rounded-lg hover:bg-green-700 transition">
-                            <i class="fas fa-file-excel text-green-400"></i>
-                            <span>{{ __('Prescriptions (Excel)') }}</span>
                         </a>
                     </li>
                 </ul>
